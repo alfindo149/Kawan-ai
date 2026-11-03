@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#07152e">
+<meta name="description" content="KAWAN AI — teman pintar untuk belajar, berkarya, dan bertanya.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KAWAN AI">
 <title>KAWAN AI</title>
 <style>
 *{box-sizing:border-box}
@@ -364,6 +371,13 @@ updateHistoryStatus("Riwayat tersimpan di perangkat: "+chatHistory.length+" pesa
 document.getElementById("question").addEventListener("keydown",function(event){
  if(event.key==="Enter"){event.preventDefault();ask();}
 });
+
+// PWA KAWAN AI: cache shell, selalu utamakan versi online.
+if ("serviceWorker" in navigator) {
+ window.addEventListener("load", () => {
+  navigator.serviceWorker.register("./sw.js").catch(error => console.warn("Service worker gagal didaftarkan:", error));
+ });
+}
 </script>
 </body>
 </html>
