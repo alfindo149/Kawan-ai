@@ -20,7 +20,8 @@ input{width:100%;padding:14px;border-radius:12px;border:1px solid #3673a7;backgr
 .voice-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}.voice-row button{flex:1;min-width:145px}.voice-status{font-size:13px;color:#a9c6df;min-height:20px}
 #reply{white-space:pre-wrap;line-height:1.6;overflow-wrap:anywhere}
 footer{text-align:center;color:#7799b9;padding:25px}
-.auth-note{font-size:13px;color:#b9d5ed;line-height:1.5}.auth-actions{display:flex;gap:8px;flex-wrap:wrap}.auth-actions button{flex:1;min-width:120px}#appArea{display:none}\n</style>
+.auth-note{font-size:13px;color:#b9d5ed;line-height:1.5}.auth-actions{display:flex;gap:8px;flex-wrap:wrap}.auth-actions button{flex:1;min-width:120px}#appArea{display:none}\n.auth-note{font-size:13px;color:#b9d5ed;line-height:1.5}.auth-actions{display:flex;gap:8px;flex-wrap:wrap}.auth-actions button{flex:1;min-width:120px}#appArea{display:none}
+</style>
 </head>
 <body>
 <header>
@@ -33,13 +34,26 @@ footer{text-align:center;color:#7799b9;padding:25px}
   <h2>Selamat datang, Kawan!</h2>
   <p>Apa yang ingin kita pelajari hari ini?</p>
  </section>
+ <section class="card" id="authCard">
+  <h3>🔐 Akun KAWAN AI</h3>
+  <p class="auth-note">Daftar akun atau masuk untuk menggunakan KAWAN AI. Kata sandi hanya diproses oleh Supabase Auth.</p>
+  <input id="authEmail" type="email" placeholder="Alamat email" autocomplete="email">
+  <input id="authPassword" type="password" placeholder="Kata sandi (minimal 6 karakter)" autocomplete="current-password">
+  <div class="auth-actions">
+   <button type="button" onclick="signIn()">Masuk</button>
+   <button type="button" onclick="signUp()" style="background:#176b57">Daftar akun</button>
+  </div>
+  <p id="authStatus" class="auth-note" aria-live="polite">Silakan masuk atau buat akun baru.</p>
+ </section>
+ <div id="appArea">
  <section class="card">
   <h3>🧠 Asisten AI</h3>
   <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
   <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai bicara</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button><button type="button" id="autoButton" onclick="toggleAutoConversation()" style="background:#176b57">🔁 Mode otomatis mati</button></div>
   <p id="voiceStatus" class="voice-status" aria-live="polite">Tekan “Mulai bicara”, izinkan mikrofon, lalu ucapkan pertanyaanmu.</p>
   <button id="send" onclick="ask()">Kirim pesan</button>
-  <button type="button" onclick="signOut()" style="margin-left:8px;background:#8a4c4c">Keluar</button>\n  <button type="button" onclick="clearMemory()" style="margin-left:8px;background:#344d6b">Hapus memori</button>
+  <button type="button" onclick="signOut()" style="margin-left:8px;background:#8a4c4c">Keluar</button>\n  <button type="button" onclick="signOut()" style="margin-left:8px;background:#8a4c4c">Keluar</button>
+  <button type="button" onclick="clearMemory()" style="margin-left:8px;background:#344d6b">Hapus memori</button>
   <p style="font-size:12px;color:#a9c6df">Memori menyimpan hingga 6 pasang pesan di browser/perangkat ini. Tidak tersinkron ke perangkat lain.</p>
   <p id="historyStatus" style="font-size:12px;color:#62e8b5" aria-live="polite">Riwayat tersimpan di perangkat: 0 pesan.</p>
   <p id="reply" aria-live="polite">KAWAN AI siap menyambutmu!</p>
@@ -61,9 +75,50 @@ footer{text-align:center;color:#7799b9;padding:25px}
   <p>Mulai membangun website sendiri.</p>
  </section>
 </div>
+</div>
 </main>
 <footer>KAWAN AI © 2026 | Dibangun bersama 💙</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://lyhpalkfznryuwicroaf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ufFMha5_NkTzn7jZb9hRjw_q50L9l9G";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentSession = null;
+
+async function refreshAuth(session){
+ currentSession = session;
+ document.getElementById("appArea").style.display = session ? "block" : "none";
+ document.getElementById("authCard").style.display = session ? "none" : "block";
+ document.getElementById("authStatus").textContent = session ? "Berhasil masuk." : "Silakan masuk atau buat akun baru.";
+}
+async function signUp(){
+ const email=document.getElementById("authEmail").value.trim();
+ const password=document.getElementById("authPassword").value;
+ const status=document.getElementById("authStatus");
+ if(!email || password.length<6){status.textContent="Masukkan email yang benar dan kata sandi minimal 6 karakter.";return;}
+ status.textContent="Sedang membuat akun...";
+ const {data,error}=await supabaseClient.auth.signUp({email,password});
+ if(error){status.textContent="Pendaftaran gagal: "+error.message;return;}
+ if(data.session){await refreshAuth(data.session);status.textContent="Akun berhasil dibuat dan kamu sudah masuk.";}
+ else{status.textContent="Pendaftaran diterima. Periksa email untuk tautan konfirmasi, lalu masuk.";}
+}
+async function signIn(){
+ const email=document.getElementById("authEmail").value.trim();
+ const password=document.getElementById("authPassword").value;
+ const status=document.getElementById("authStatus");
+ if(!email || !password){status.textContent="Isi email dan kata sandi terlebih dahulu.";return;}
+ status.textContent="Sedang masuk...";
+ const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+ if(error){status.textContent="Tidak bisa masuk: "+error.message;return;}
+ await refreshAuth(data.session);
+}
+async function signOut(){
+ await supabaseClient.auth.signOut();
+ await refreshAuth(null);
+}
+supabaseClient.auth.getSession().then(({data})=>refreshAuth(data.session));
+supabaseClient.auth.onAuthStateChange((_event,session)=>refreshAuth(session));
+
 const CHAT_ENDPOINT = "https://lyhpalkfznryuwicroaf.supabase.co/functions/v1/kawan-chat";
 const MEMORY_KEY = "kawan_ai_chat_history_v1";
 let chatHistory = loadHistory();
