@@ -17,17 +17,24 @@ self.addEventListener("activate", event => {
   );
 });
 
-// Network-first for same-origin pages; never cache auth, API, or external requests.
+// Network-first for app pages and assets; never cache auth, API, or external requests.
 self.addEventListener("fetch", event => {
   const request = event.request;
   const url = new URL(request.url);
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
   if (url.pathname.includes("/functions/") || url.pathname.includes("/auth/")) return;
 
+  const appBase = new URL(self.registration.scope);
+  const isAppShell = url.pathname === appBase.pathname ||
+    url.pathname === appBase.pathname + "index.html" ||
+    url.pathname === appBase.pathname + "manifest.webmanifest" ||
+    url.pathname === appBase.pathname + "icon.svg";
+  if (!isAppShell && request.mode !== "navigate") return;
+
   event.respondWith(
     fetch(request)
       .then(response => {
-        if (response.ok && (request.mode === "navigate" || APP_SHELL.some(path => url.pathname.endsWith(path.replace("./", ""))))) {
+        if (response.ok) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
         }
