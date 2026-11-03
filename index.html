@@ -36,7 +36,7 @@ footer{text-align:center;color:#7799b9;padding:25px}
  <section class="card">
   <h3>🧠 Asisten AI</h3>
   <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
-  <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai bicara</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button></div>
+  <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai bicara</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button><button type="button" id="autoButton" onclick="toggleAutoConversation()" style="background:#176b57">🔁 Mode otomatis mati</button></div>
   <p id="voiceStatus" class="voice-status" aria-live="polite">Tekan “Mulai bicara”, izinkan mikrofon, lalu ucapkan pertanyaanmu.</p>
   <button id="send" onclick="ask()">Kirim pesan</button>
   <button type="button" onclick="clearMemory()" style="margin-left:8px;background:#344d6b">Hapus memori</button>
@@ -69,6 +69,7 @@ let chatHistory = loadHistory();
 let voiceEnabled = true;
 let recognition = null;
 let isListening = false;
+let autoConversation = false;
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (SpeechRecognitionAPI) {
@@ -116,14 +117,42 @@ function updateHistoryStatus(message){
  document.getElementById("historyStatus").textContent=message;
 }
 
+function startListeningAgain(){
+ if(!autoConversation || !recognition) return;
+ try{
+  recognition.start();
+  document.getElementById("voiceStatus").textContent="KAWAN AI siap mendengarkan lagi. Silakan bicara.";
+ }catch(error){
+  document.getElementById("voiceStatus").textContent="Belum bisa mengaktifkan mikrofon lagi. Tekan Mulai bicara untuk melanjutkan.";
+ }
+}
+
 function speakReply(text){
- if(!voiceEnabled || !("speechSynthesis" in window)) return;
+ if(!voiceEnabled || !("speechSynthesis" in window)){
+  if(autoConversation) document.getElementById("voiceStatus").textContent="Aktifkan suara jawaban agar mode otomatis dapat bergantian mendengarkan.";
+  return;
+ }
  window.speechSynthesis.cancel();
  const utterance = new SpeechSynthesisUtterance(text);
  utterance.lang = "id-ID";
  utterance.rate = 1;
  utterance.pitch = 1;
+ utterance.onend = () => { if(autoConversation) setTimeout(startListeningAgain,500); };
+ utterance.onerror = () => { if(autoConversation) document.getElementById("voiceStatus").textContent="Suara gagal diputar. Tekan Mulai bicara untuk melanjutkan."; };
  window.speechSynthesis.speak(utterance);
+}
+
+function toggleAutoConversation(){
+ autoConversation = !autoConversation;
+ const button=document.getElementById("autoButton");
+ button.textContent=autoConversation ? "🔁 Mode otomatis aktif" : "🔁 Mode otomatis mati";
+ button.style.background=autoConversation ? "#176b57" : "#344d6b";
+ document.getElementById("voiceStatus").textContent=autoConversation
+  ? "Mode otomatis aktif. Setelah jawaban selesai dibacakan, mikrofon akan aktif lagi."
+  : "Mode otomatis dimatikan. Gunakan tombol mikrofon untuk berbicara.";
+ if(autoConversation && !isListening && !("speechSynthesis" in window)){
+  document.getElementById("voiceStatus").textContent="Browser tidak mendukung suara otomatis. Gunakan tombol mikrofon secara manual.";
+ }
 }
 
 function toggleVoice(){
@@ -139,7 +168,7 @@ function toggleListening(){
   document.getElementById("voiceStatus").textContent = "Pengenalan suara tidak tersedia. Gunakan Google Chrome di Android.";
   return;
  }
- if(isListening){ recognition.stop(); return; }
+ if(isListening){ recognition.stop(); autoConversation=false; document.getElementById("autoButton").textContent="🔁 Mode otomatis mati"; document.getElementById("autoButton").style.background="#344d6b"; return; }
  try{ recognition.start(); }
  catch(error){ document.getElementById("voiceStatus").textContent = "Mikrofon sedang digunakan. Tunggu sebentar lalu coba lagi."; }
 }
