@@ -21,6 +21,17 @@ input{width:100%;padding:14px;border-radius:12px;border:1px solid #3673a7;backgr
 #reply{white-space:pre-wrap;line-height:1.6;overflow-wrap:anywhere}
 footer{text-align:center;color:#7799b9;padding:25px}
 .auth-note{font-size:13px;color:#b9d5ed;line-height:1.5}.auth-actions{display:flex;gap:8px;flex-wrap:wrap}.auth-actions button{flex:1;min-width:120px}#appArea{display:none}\n.auth-note{font-size:13px;color:#b9d5ed;line-height:1.5}.auth-actions{display:flex;gap:8px;flex-wrap:wrap}.auth-actions button{flex:1;min-width:120px}#appArea{display:none}
+
+/* Universal dashboard */
+.dashboard-title{margin:0 0 12px;color:#55d9ff}
+.site-search{display:flex;gap:8px;flex-wrap:wrap}
+.site-search input{flex:1;min-width:180px;margin:0}
+.site-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.site-link{display:block;padding:14px;border:1px solid #2b5b85;border-radius:14px;background:#0b203b;color:#eaf7ff;text-decoration:none;font-weight:bold}
+.site-link small{display:block;color:#a9c6df;font-weight:normal;margin-top:5px;line-height:1.4}
+.site-link:focus,.site-link:hover{outline:2px solid #55d9ff}
+@media(min-width:600px){.site-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
@@ -46,6 +57,28 @@ footer{text-align:center;color:#7799b9;padding:25px}
   <p id="authStatus" class="auth-note" aria-live="polite">Silakan masuk atau buat akun baru.</p>
  </section>
  <div id="appArea">
+
+ <section class="card" id="universalDashboard">
+  <h2 class="dashboard-title">🌐 Pusat Akses Website</h2>
+  <p class="auth-note">Pilih layanan untuk membukanya di tab baru. Login dan verifikasi tetap dilakukan di situs resminya.</p>
+  <div class="site-search">
+   <input id="siteAddress" type="url" inputmode="url" placeholder="Cari atau masukkan alamat website, misalnya example.com" aria-label="Alamat website">
+   <button type="button" onclick="openCustomSite()">Buka website</button>
+  </div>
+  <div class="site-grid">
+   <a class="site-link" href="https://www.google.com/" target="_blank" rel="noopener noreferrer">🔎 Google<small>Pencarian web</small></a>
+   <a class="site-link" href="https://mail.google.com/" target="_blank" rel="noopener noreferrer">📧 Gmail<small>Email Google</small></a>
+   <a class="site-link" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">▶️ YouTube<small>Video dan pembelajaran</small></a>
+   <a class="site-link" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">📘 Facebook<small>Media sosial</small></a>
+   <a class="site-link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">📸 Instagram<small>Foto dan video</small></a>
+   <a class="site-link" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer">🎵 TikTok<small>Video pendek</small></a>
+   <a class="site-link" href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">📈 TradingView<small>Grafik dan analisis pasar</small></a>
+   <a class="site-link" href="https://www.metatrader5.com/" target="_blank" rel="noopener noreferrer">💹 MetaTrader 5<small>Platform trading resmi</small></a>
+   <a class="site-link" href="https://github.com/" target="_blank" rel="noopener noreferrer">💻 GitHub<small>Proyek dan kode</small></a>
+  </div>
+  <p id="siteStatus" class="auth-note" aria-live="polite">Dashboard akses awal siap digunakan.</p>
+ </section>
+
  <section class="card">
   <h3>🧠 Asisten AI</h3>
   <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
@@ -118,6 +151,20 @@ async function signOut(){
 }
 supabaseClient.auth.getSession().then(({data})=>refreshAuth(data.session));
 supabaseClient.auth.onAuthStateChange((_event,session)=>refreshAuth(session));
+
+
+function openCustomSite(){
+ const input=document.getElementById("siteAddress");
+ const status=document.getElementById("siteStatus");
+ let value=input.value.trim();
+ if(!value){status.textContent="Masukkan alamat website terlebih dahulu.";return;}
+ if(!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) value="https://"+value;
+ let url;
+ try{url=new URL(value);}catch(error){status.textContent="Alamat website tidak valid.";return;}
+ if(!["http:","https:"].includes(url.protocol)){status.textContent="Demi keamanan, hanya alamat HTTP atau HTTPS yang diizinkan.";return;}
+ window.open(url.href,"_blank","noopener,noreferrer");
+ status.textContent="Mencoba membuka "+url.hostname+" di tab baru.";
+}
 
 const CHAT_ENDPOINT = "https://lyhpalkfznryuwicroaf.supabase.co/functions/v1/kawan-chat";
 const MEMORY_KEY = "kawan_ai_chat_history_v1";
