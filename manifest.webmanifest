@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "KAWAN AI",
+  "short_name": "KAWAN AI",
+  "description": "Teman pintar untuk belajar, berkarya, dan bertanya.",
+  "lang": "id",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07152e",
+  "theme_color": "#07152e",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
