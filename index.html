@@ -36,6 +36,8 @@ footer{text-align:center;color:#7799b9;padding:25px}
   <h3>🧠 Asisten AI</h3>
   <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
   <button id="send" onclick="ask()">Kirim pesan</button>
+  <button type="button" onclick="clearMemory()" style="margin-left:8px;background:#344d6b">Hapus memori</button>
+  <p style="font-size:12px;color:#a9c6df">Memori menyimpan hingga 6 pasang pesan di browser/perangkat ini. Tidak tersinkron ke perangkat lain.</p>
   <p id="reply" aria-live="polite">KAWAN AI siap menyambutmu!</p>
  </section>
  <section class="card">
@@ -58,6 +60,33 @@ footer{text-align:center;color:#7799b9;padding:25px}
 <footer>KAWAN AI © 2026 | Dibangun bersama 💙</footer>
 <script>
 const CHAT_ENDPOINT = "https://lyhpalkfznryuwicroaf.supabase.co/functions/v1/kawan-chat";
+const MEMORY_KEY = "kawan_ai_chat_history_v1";
+let chatHistory = loadHistory();
+
+function loadHistory(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(MEMORY_KEY) || "[]");
+  if(!Array.isArray(saved)) return [];
+  return saved.filter(item=>
+   item && ["user","model"].includes(item.role) &&
+   typeof item.text==="string"
+  ).slice(-12);
+ }catch(error){return [];}
+}
+
+function saveHistory(){
+ try{
+  localStorage.setItem(MEMORY_KEY,JSON.stringify(chatHistory.slice(-12)));
+ }catch(error){
+  console.warn("Memori lokal tidak dapat disimpan:",error);
+ }
+}
+
+function clearMemory(){
+ chatHistory=[];
+ try{localStorage.removeItem(MEMORY_KEY);}catch(error){}
+ document.getElementById("reply").textContent="Memori percakapan di perangkat ini sudah dibersihkan.";
+}
 
 async function ask(){
  const q=document.getElementById("question").value.trim();
@@ -66,12 +95,12 @@ async function ask(){
  if(!q){r.textContent="Silakan tulis pertanyaan dahulu.";return;}
  button.disabled=true;
  button.textContent="Sedang berpikir...";
- r.textContent="KAWAN AI sedang menyiapkan jawaban...";
+ r.textContent="KAWAN AI sedang mengingat konteks percakapan...";
  try{
   const response=await fetch(CHAT_ENDPOINT,{
    method:"POST",
    headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({message:q})
+   body:JSON.stringify({message:q,history:chatHistory})
   });
   const data=await response.json().catch(()=>({}));
   if(!response.ok){
@@ -80,7 +109,11 @@ async function ask(){
   if(typeof data.reply!=="string" || !data.reply.trim()){
    throw new Error("Jawaban dari AI kosong. Coba kirim ulang.");
   }
+  chatHistory.push({role:"user",text:q},{role:"model",text:data.reply});
+  chatHistory=chatHistory.slice(-12);
+  saveHistory();
   r.textContent=data.reply;
+  document.getElementById("question").value="";
  }catch(error){
   console.error(error);
   r.textContent="Maaf, Kawan. "+(error.message || "Koneksi ke AI gagal.")+" Periksa internet lalu coba lagi.";
