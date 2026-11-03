@@ -17,6 +17,7 @@ main{padding:20px;max-width:650px;margin:auto}
 button{background:#087fc9;color:white;border:0;padding:13px 17px;border-radius:12px;font-weight:bold;cursor:pointer}
 button:disabled{opacity:.6;cursor:wait}
 input{width:100%;padding:14px;border-radius:12px;border:1px solid #3673a7;background:#071a32;color:white;font-size:16px;margin-bottom:10px}
+.voice-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}.voice-row button{flex:1;min-width:145px}.voice-status{font-size:13px;color:#a9c6df;min-height:20px}
 #reply{white-space:pre-wrap;line-height:1.6;overflow-wrap:anywhere}
 footer{text-align:center;color:#7799b9;padding:25px}
 </style>
@@ -35,6 +36,8 @@ footer{text-align:center;color:#7799b9;padding:25px}
  <section class="card">
   <h3>🧠 Asisten AI</h3>
   <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
+  <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai bicara</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button></div>
+  <p id="voiceStatus" class="voice-status" aria-live="polite">Tekan “Mulai bicara”, izinkan mikrofon, lalu ucapkan pertanyaanmu.</p>
   <button id="send" onclick="ask()">Kirim pesan</button>
   <button type="button" onclick="clearMemory()" style="margin-left:8px;background:#344d6b">Hapus memori</button>
   <p style="font-size:12px;color:#a9c6df">Memori menyimpan hingga 6 pasang pesan di browser/perangkat ini. Tidak tersinkron ke perangkat lain.</p>
@@ -63,6 +66,32 @@ footer{text-align:center;color:#7799b9;padding:25px}
 const CHAT_ENDPOINT = "https://lyhpalkfznryuwicroaf.supabase.co/functions/v1/kawan-chat";
 const MEMORY_KEY = "kawan_ai_chat_history_v1";
 let chatHistory = loadHistory();
+let voiceEnabled = true;
+let recognition = null;
+let isListening = false;
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognitionAPI) {
+ recognition = new SpeechRecognitionAPI();
+ recognition.lang = "id-ID";
+ recognition.continuous = false;
+ recognition.interimResults = false;
+ recognition.onstart = () => { isListening=true; document.getElementById("micButton").textContent="⏹️ Berhenti bicara"; document.getElementById("voiceStatus").textContent="KAWAN AI sedang mendengarkan..."; };
+ recognition.onend = () => { isListening=false; document.getElementById("micButton").textContent="🎙️ Mulai bicara"; };
+ recognition.onresult = (event) => {
+  const spokenText = event.results[event.results.length-1][0].transcript.trim();
+  document.getElementById("question").value = spokenText;
+  document.getElementById("voiceStatus").textContent = "Kamu berkata: “" + spokenText + "” — KAWAN AI sedang menyiapkan jawaban.";
+  ask();
+ };
+ recognition.onerror = (event) => {
+  const messages = {"not-allowed":"Izin mikrofon ditolak. Izinkan mikrofon untuk situs ini.","no-speech":"Suara belum terdengar. Coba bicara lebih dekat ke mikrofon.","network":"Pengenalan suara membutuhkan koneksi internet."};
+  document.getElementById("voiceStatus").textContent = messages[event.error] || ("Mikrofon bermasalah: " + event.error);
+ };
+} else {
+ document.getElementById("micButton").disabled = true;
+ document.getElementById("voiceStatus").textContent = "Browser ini belum mendukung pengenalan suara. Coba buka website melalui Google Chrome.";
+}
 
 function loadHistory(){
  try{
@@ -85,6 +114,34 @@ function saveHistory(){
 
 function updateHistoryStatus(message){
  document.getElementById("historyStatus").textContent=message;
+}
+
+function speakReply(text){
+ if(!voiceEnabled || !("speechSynthesis" in window)) return;
+ window.speechSynthesis.cancel();
+ const utterance = new SpeechSynthesisUtterance(text);
+ utterance.lang = "id-ID";
+ utterance.rate = 1;
+ utterance.pitch = 1;
+ window.speechSynthesis.speak(utterance);
+}
+
+function toggleVoice(){
+ voiceEnabled = !voiceEnabled;
+ const button = document.getElementById("voiceButton");
+ button.textContent = voiceEnabled ? "🔊 Suara aktif" : "🔇 Suara mati";
+ if(!voiceEnabled && "speechSynthesis" in window) window.speechSynthesis.cancel();
+ document.getElementById("voiceStatus").textContent = voiceEnabled ? "Suara jawaban KAWAN AI diaktifkan." : "Suara jawaban dimatikan. Mikrofon tetap bisa digunakan.";
+}
+
+function toggleListening(){
+ if(!recognition){
+  document.getElementById("voiceStatus").textContent = "Pengenalan suara tidak tersedia. Gunakan Google Chrome di Android.";
+  return;
+ }
+ if(isListening){ recognition.stop(); return; }
+ try{ recognition.start(); }
+ catch(error){ document.getElementById("voiceStatus").textContent = "Mikrofon sedang digunakan. Tunggu sebentar lalu coba lagi."; }
 }
 
 function clearMemory(){
@@ -122,6 +179,8 @@ async function ask(){
   saveHistory();
   updateHistoryStatus("Riwayat terkirim pada permintaan tadi: "+sentHistoryCount+" pesan. Tersimpan sekarang: "+chatHistory.length+" pesan.");
   r.textContent=data.reply;
+  speakReply(data.reply);
+  document.getElementById("voiceStatus").textContent = voiceEnabled ? "KAWAN AI sedang membacakan jawaban. Tekan mikrofon untuk berbicara lagi." : "Jawaban diterima. Suara sedang dimatikan.";
   document.getElementById("question").value="";
  }catch(error){
   console.error(error);
