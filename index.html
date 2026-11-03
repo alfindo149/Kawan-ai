@@ -137,7 +137,7 @@ async function signUp(){
  const status=document.getElementById("authStatus");
  if(!email || password.length<6){status.textContent="Masukkan email yang benar dan kata sandi minimal 6 karakter.";return;}
  status.textContent="Sedang membuat akun...";
- const {data,error}=await supabaseClient.auth.signUp({email,password});
+ const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://alfindo149.github.io/Kawan-ai/"}});
  if(error){status.textContent="Pendaftaran gagal: "+error.message;return;}
  if(data.session){await refreshAuth(data.session);status.textContent="Akun berhasil dibuat dan kamu sudah masuk.";}
  else{status.textContent="Pendaftaran diterima. Periksa email untuk tautan konfirmasi, lalu masuk.";}
@@ -157,7 +157,7 @@ async function requestPasswordReset(){
  const status=document.getElementById("authStatus");
  if(!email){status.textContent="Masukkan alamat email akun KAWAN AI terlebih dahulu.";return;}
  status.textContent="Sedang mengirim tautan pemulihan...";
- const redirectTo=window.location.origin+window.location.pathname;
+ const redirectTo="https://alfindo149.github.io/Kawan-ai/";
  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo});
  if(error){status.textContent="Tautan pemulihan gagal dikirim: "+error.message;return;}
  status.textContent="Permintaan dikirim. Periksa kotak masuk dan folder Spam email tersebut, lalu buka tautan pemulihan.";
