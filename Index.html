@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07152e">
+<title>KAWAN AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#07152e;color:white;
+ font-family:Arial,sans-serif;
+ min-height:100vh;
+}
+header{
+ padding:24px 18px;
+ background:linear-gradient(135deg,#102d60,#087acb);
+ border-bottom:1px solid #2678c9;
+}
+h1{margin:0;color:#55d9ff;font-size:30px}
+header p{color:#c6eaff}
+main{padding:20px;max-width:650px;margin:auto}
+.card{
+ background:#102747;border:1px solid #23517d;
+ border-radius:18px;padding:18px;margin-bottom:16px;
+}
+.status{color:#62e8b5;font-size:13px}
+button{
+ background:#087fc9;color:white;border:0;
+ padding:13px 17px;border-radius:12px;
+ font-weight:bold;cursor:pointer
+}
+input{
+ width:100%;padding:14px;border-radius:12px;
+ border:1px solid #3673a7;background:#071a32;
+ color:white;font-size:16px;margin-bottom:10px
+}
+#reply{white-space:pre-wrap;line-height:1.6}
+footer{text-align:center;color:#7799b9;padding:25px}
+</style>
+</head>
+<body>
+<header>
+ <h1>🤖 KAWAN AI</h1>
+ <p>Teman pintar dalam genggamanmu</p>
+ <div class="status">● SISTEM SIAP</div>
+</header>
+<main>
+ <section class="card">
+  <h2>Selamat datang, Kawan!</h2>
+  <p>Apa yang ingin kita pelajari hari ini?</p>
+ </section>
+ <section class="card">
+  <h3>🧠 Asisten AI</h3>
+  <input id="question" placeholder="Tulis pertanyaanmu...">
+  <button onclick="ask()">Kirim pesan</button>
+  <p id="reply">KAWAN AI siap menyambutmu!</p>
+ </section>
+ <section class="card">
+  <h3>⚡ Laboratorium Elektronika</h3>
+  <p>Belajar komponen dan rangkaian elektronik.</p>
+ </section>
+ <section class="card">
+  <h3>📈 Belajar Trading</h3>
+  <p>Belajar membaca grafik dan memahami pasar.</p>
+ </section>
+ <section class="card">
+  <h3>🎬 Studio Konten</h3>
+  <p>Tempat mengembangkan ide konten kreatif.</p>
+ </section>
+ <section class="card">
+  <h3>🌐 Website Builder</h3>
+  <p>Mulai membangun website sendiri.</p>
+ </section>
+</main>
+<footer>KAWAN AI © 2026 | Dibangun bersama 💙</footer>
+<script>
+function ask(){
+ const q=document.getElementById("question").value.trim();
+ const r=document.getElementById("reply");
+ if(!q){r.textContent="Silakan tulis pertanyaan dahulu.";return;}
+ r.textContent="Terima kasih, Kawan! Fitur otak AI akan kita hubungkan pada tahap berikutnya. Pertanyaanmu: "+q;
+}
+</script>
+</body>
+</html>
