@@ -180,7 +180,7 @@ footer{color:#64748b;font-size:12px;border-top:1px solid var(--line)}
  <section class="card">
   <h3>🧠 Asisten AI</h3>
   <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
-  <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai bicara</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button><button type="button" id="autoButton" onclick="toggleAutoConversation()" style="background:#176b57">🔁 Mode otomatis mati</button><button type="button" id="wakeButton" onclick="toggleWakeWord()" style="background:#344d6b">🗣️ Halo GIA: mati</button></div>
+  <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai ngobrol dengan GIA</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button><button type="button" id="autoButton" onclick="toggleAutoConversation()" style="display:none">🔁 Mode otomatis mati</button><button type="button" id="wakeButton" onclick="toggleWakeWord()" style="display:none">🗣️ Halo GIA: mati</button></div>
   <p id="voiceStatus" class="voice-status" aria-live="polite">Tekan “Mulai bicara”, izinkan mikrofon, lalu ucapkan pertanyaanmu.</p>
   <button id="send" onclick="ask()">Kirim pesan</button>
   <button type="button" onclick="signOut()" style="margin-left:8px;background:#8a4c4c">Keluar</button>
@@ -599,20 +599,30 @@ function toggleListening(){
   document.getElementById("voiceStatus").textContent = "Pengenalan suara tidak tersedia. Gunakan Google Chrome di Android.";
   return;
  }
- if(isListening){
-  recognition.stop();
+ if(isListening || autoConversation){
   autoConversation=false;
   wakeWordMode=false;
   awaitingWakeCommand=false;
   voiceProcessing=false;
-  document.getElementById("autoButton").textContent="🔁 Mode otomatis mati";
-  document.getElementById("autoButton").style.background="#344d6b";
-  document.getElementById("wakeButton").textContent="🗣️ Halo GIA: mati";
-  document.getElementById("wakeButton").style.background="#344d6b";
+  recognition.stop();
+  document.getElementById("micButton").textContent="🎙️ Mulai ngobrol dengan GIA";
+  document.getElementById("voiceStatus").textContent="Percakapan suara dihentikan.";
   return;
  }
+ // Browser requires a user tap before granting microphone access.
+ // One tap starts hands-free listening and spoken replies together.
+ autoConversation=true;
+ wakeWordMode=false;
+ voiceEnabled=true;
+ document.getElementById("voiceButton").textContent="🔊 Suara aktif";
+ document.getElementById("micButton").textContent="⏹️ Hentikan percakapan";
+ document.getElementById("voiceStatus").textContent="GIA siap mendengarkan. Silakan bicara; GIA akan menjawab lalu mendengarkan kembali.";
  try{ recognition.start(); }
- catch(error){ document.getElementById("voiceStatus").textContent = "Mikrofon sedang digunakan. Tunggu sebentar lalu coba lagi."; }
+ catch(error){
+  autoConversation=false;
+  document.getElementById("micButton").textContent="🎙️ Mulai ngobrol dengan GIA";
+  document.getElementById("voiceStatus").textContent = "Mikrofon sedang digunakan. Tunggu sebentar lalu coba lagi.";
+ }
 }
 
 async function clearMemory(){
