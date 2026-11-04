@@ -98,6 +98,22 @@ footer{color:#64748b;font-size:12px;border-top:1px solid var(--line)}
 .gia-avatar-note{font-size:11px;color:#b8b5d7;margin-top:7px;text-align:center}
 @media(max-width:480px){.gia-hero{grid-template-columns:minmax(0,1fr) 116px;gap:10px;padding:14px}.gia-avatar-frame{max-width:116px;border-radius:16px}.gia-hero-copy h2{font-size:21px}}
 
+
+/* GIA avatar expressions and voice state */
+.gia-avatar-frame{isolation:isolate;transition:box-shadow .25s,border-color .25s}
+.gia-avatar-frame img{animation:gia-float 4.8s ease-in-out infinite;transform-origin:50% 65%}
+.gia-avatar-frame:before{content:"";position:absolute;z-index:2;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 30px #9b7aff22}
+.gia-hero.gia-listening .gia-avatar-frame{border-color:#57d8ff;box-shadow:0 0 0 4px #57d8ff22,0 0 32px #35cfff88}
+.gia-hero.gia-speaking .gia-avatar-frame{border-color:#d6a2ff;box-shadow:0 0 0 4px #c58bff22,0 0 38px #a56affaa}
+.gia-hero.gia-speaking .gia-avatar-frame:before{animation:gia-glow .9s ease-in-out infinite alternate}
+.gia-avatar-state{display:inline-flex;align-items:center;gap:7px;margin-top:9px;color:#c9c1ff;font-size:12px}
+.gia-avatar-state:before{content:"";width:7px;height:7px;border-radius:50%;background:#7e83a9}
+.gia-hero.gia-listening .gia-avatar-state:before{background:#57d8ff;box-shadow:0 0 9px #57d8ff}
+.gia-hero.gia-speaking .gia-avatar-state:before{background:#c58bff;box-shadow:0 0 10px #c58bff}
+@keyframes gia-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes gia-glow{from{opacity:.35}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.gia-avatar-frame img,.gia-hero.gia-speaking .gia-avatar-frame:before{animation:none}}
+
 </style>
 </head>
 <body>
@@ -150,7 +166,7 @@ footer{color:#64748b;font-size:12px;border-top:1px solid var(--line)}
   </div>
   <div>
    <div class="gia-avatar-frame"><img src="./gia-avatar.svg" alt="Avatar perempuan GIA" onerror="this.style.display='none'"></div>
-   <div class="gia-avatar-note">Wajah virtual GIA</div>
+   <div class="gia-avatar-note">Wajah virtual GIA</div><div class="gia-avatar-state" id="giaAvatarState" aria-live="polite">Siap menemani</div>
   </div>
  </section>
 
@@ -353,6 +369,7 @@ if (SpeechRecognitionAPI) {
  recognition = new SpeechRecognitionAPI();
  recognition.lang = "id-ID";
  recognition.continuous = false;
+ recognition.onstart = () => setGiaAvatarState("listening");
  recognition.interimResults = false;
  recognition.onstart = () => {
   isListening=true;
@@ -363,6 +380,7 @@ if (SpeechRecognitionAPI) {
  };
  recognition.onend = () => {
   isListening=false;
+  if(!(window.speechSynthesis && window.speechSynthesis.speaking)) setGiaAvatarState("idle");
   const micButton=document.getElementById("micButton");
   micButton.textContent=(autoConversation || wakeWordMode)
    ? "⏹️ Hentikan percakapan"
@@ -537,6 +555,14 @@ function getGiaVoice(){
         indonesian[0] || voices.find(v => /id/i.test(v.lang)) || null;
 }
 
+function setGiaAvatarState(state){
+ const hero=document.querySelector(".gia-hero");
+ const label=document.getElementById("giaAvatarState");
+ if(!hero || !label) return;
+ hero.classList.toggle("gia-listening",state==="listening");
+ hero.classList.toggle("gia-speaking",state==="speaking");
+ label.textContent=state==="listening"?"GIA sedang mendengarkan":state==="speaking"?"GIA sedang berbicara":"Siap menemani";
+}
 function speakReply(text){
  if(!voiceEnabled || !("speechSynthesis" in window)){
   voiceProcessing=false;
@@ -554,14 +580,17 @@ function speakReply(text){
  const giaVoice = getGiaVoice();
  if(giaVoice) utterance.voice = giaVoice;
  utterance.onstart = () => {
+  setGiaAvatarState("speaking");
   const voiceLabel = giaVoice ? giaVoice.name : "suara bawaan perangkat";
   document.getElementById("voiceStatus").textContent = "GIA sedang berbicara · " + voiceLabel;
  };
  utterance.onend = () => {
+  setGiaAvatarState("idle");
   voiceProcessing=false;
   if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,500);
  };
  utterance.onerror = () => {
+  setGiaAvatarState("idle");
   voiceProcessing=false;
   if(autoConversation || wakeWordMode){
    document.getElementById("voiceStatus").textContent="Suara gagal diputar. Mencoba mengaktifkan mikrofon kembali.";
