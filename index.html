@@ -218,6 +218,67 @@ footer{border-color:rgba(125,145,198,.18);color:#8494b3}
  *,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
 
+
+/* Premium GIA layout inspired by the original purple-blue concept */
+:root{
+ --bg:#080b18;--panel:#111a30;--panel2:#192744;--line:#35466e;
+ --muted:#b5c0da;--accent:#a78bfa;--text:#f7f5ff
+}
+body{
+ background:
+  radial-gradient(ellipse at 12% 2%,rgba(84,91,205,.25),transparent 36%),
+  radial-gradient(ellipse at 92% 15%,rgba(151,89,231,.2),transparent 34%),
+  linear-gradient(180deg,#090e20,#070b15 65%);
+}
+header{background:rgba(8,12,27,.9);border-bottom-color:#55458c}
+header h1{color:#e8dcff}
+main{max-width:920px;padding-top:20px}
+.gia-hero{
+ min-height:210px;
+ grid-template-columns:minmax(0,1fr) minmax(145px,205px);
+ background:
+  radial-gradient(circle at 80% 12%,rgba(187,145,255,.32),transparent 36%),
+  linear-gradient(125deg,#202d61 0%,#34245d 55%,#152c50 100%);
+ border:1px solid rgba(181,155,255,.5);
+ box-shadow:0 20px 48px rgba(33,23,83,.38)
+}
+.gia-hero-copy h2{font-size:clamp(24px,5vw,34px);letter-spacing:-.8px}
+.gia-hero-copy p{max-width:510px;font-size:14px}
+.gia-avatar-frame{max-width:190px;border:2px solid #c2a8ff;box-shadow:0 15px 42px #050816aa}
+.gia-shortcuts{
+ position:sticky;top:62px;z-index:15;display:flex;gap:8px;
+ padding:9px;margin:0 0 15px;border:1px solid #35466e;
+ border-radius:17px;background:rgba(12,19,39,.91);
+ backdrop-filter:blur(14px);box-shadow:0 8px 25px #0005
+}
+.gia-shortcuts button{flex:1;min-width:0;padding:10px 7px;font-size:12px;border-radius:12px}
+.gia-chat-card{
+ border-color:rgba(166,139,250,.42);
+ background:linear-gradient(145deg,rgba(24,31,58,.98),rgba(13,21,40,.98));
+ box-shadow:0 18px 42px rgba(0,0,0,.25)
+}
+.gia-chat-card>h3{font-size:20px}
+#question{min-height:54px;border-color:#5b5590;background:#0b1227}
+#send{background:linear-gradient(135deg,#8b68ef,#596fdf);min-width:140px}
+#reply{background:linear-gradient(145deg,#0b142b,#111b34);border-color:#394a74;min-height:110px}
+#knowledgeCenter{border-color:rgba(111,151,226,.32)}
+#knowledgeCenter h3{color:#e8e1ff}
+#giaLearningButton{padding:14px 19px;font-size:14px;box-shadow:0 8px 22px #6d4acb55}
+#universalDashboard .site-grid{gap:11px}
+#universalDashboard .site-link{min-height:76px;display:flex;flex-direction:column;justify-content:center}
+#appArea>.card:not(.gia-hero):not(.gia-chat-card){scroll-margin-top:125px}
+.gia-hero,#giaChat,#knowledgeCenter,#universalDashboard{scroll-margin-top:125px}
+@media(max-width:560px){
+ main{padding:13px 10px 76px}
+ .gia-hero{grid-template-columns:minmax(0,1fr) 105px;min-height:175px}
+ .gia-avatar-frame{max-width:105px}
+ .gia-hero-copy h2{font-size:20px}
+ .gia-shortcuts{top:56px;gap:5px;padding:7px}
+ .gia-shortcuts button{font-size:11px;padding:10px 3px}
+ #send{width:100%;margin:8px 0 0}
+ #giaChat .voice-row button{min-width:calc(50% - 5px);flex:1}
+}
+
 </style>
 </head>
 <body>
@@ -272,6 +333,24 @@ footer{border-color:rgba(125,145,198,.18);color:#8494b3}
    <div class="gia-avatar-frame"><img src="./gia-avatar.svg" alt="Avatar perempuan GIA" onerror="this.style.display='none'"></div>
    <div class="gia-avatar-note">Wajah virtual GIA</div><div class="gia-avatar-state" id="giaAvatarState" aria-live="polite">Siap menemani</div>
   </div>
+ </section>
+ <nav class="gia-shortcuts" aria-label="Navigasi cepat GIA">
+  <button type="button" onclick="document.getElementById('giaChat').scrollIntoView({behavior:'smooth'})">💬 Chat</button>
+  <button type="button" onclick="document.getElementById('knowledgeCenter').scrollIntoView({behavior:'smooth'})">🧠 Belajar</button>
+  <button type="button" onclick="document.getElementById('universalDashboard').scrollIntoView({behavior:'smooth'})">🌐 Website</button>
+ </nav>
+
+ <section class="card gia-chat-card" id="giaChat">
+  <h3>🧠 Asisten AI</h3>
+  <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
+  <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai ngobrol dengan GIA</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button><button type="button" id="autoButton" onclick="toggleAutoConversation()" style="display:none">🔁 Mode otomatis mati</button><button type="button" id="wakeButton" onclick="toggleWakeWord()" style="display:none">🗣️ Halo GIA: mati</button></div>
+  <p id="voiceStatus" class="voice-status" aria-live="polite">Tekan “Mulai bicara”, izinkan mikrofon, lalu ucapkan pertanyaanmu.</p>
+  <button id="send" onclick="ask()">Kirim pesan</button>
+  <button type="button" onclick="signOut()" style="margin-left:8px;background:#8a4c4c">Keluar</button>
+  <button type="button" onclick="clearMemory()" style="margin-left:8px;background:#344d6b">Hapus memori</button>
+  <p style="font-size:12px;color:#a9c6df">Memori percakapan tersimpan di akun GIA melalui Supabase dan dapat digunakan kembali saat masuk dari perangkat lain.</p>
+  <p id="historyStatus" style="font-size:12px;color:#62e8b5" aria-live="polite">Riwayat tersimpan di perangkat: 0 pesan.</p>
+  <p id="reply" aria-live="polite">GIA siap menyambutmu!</p>
  </section>
 
  <section class="card" id="universalDashboard">
@@ -328,18 +407,7 @@ footer{border-color:rgba(125,145,198,.18);color:#8494b3}
   </div>
   <div id="pendingKnowledgeList"></div>
  </section>
- <section class="card">
-  <h3>🧠 Asisten AI</h3>
-  <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
-  <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai ngobrol dengan GIA</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button><button type="button" id="autoButton" onclick="toggleAutoConversation()" style="display:none">🔁 Mode otomatis mati</button><button type="button" id="wakeButton" onclick="toggleWakeWord()" style="display:none">🗣️ Halo GIA: mati</button></div>
-  <p id="voiceStatus" class="voice-status" aria-live="polite">Tekan “Mulai bicara”, izinkan mikrofon, lalu ucapkan pertanyaanmu.</p>
-  <button id="send" onclick="ask()">Kirim pesan</button>
-  <button type="button" onclick="signOut()" style="margin-left:8px;background:#8a4c4c">Keluar</button>
-  <button type="button" onclick="clearMemory()" style="margin-left:8px;background:#344d6b">Hapus memori</button>
-  <p style="font-size:12px;color:#a9c6df">Memori percakapan tersimpan di akun GIA melalui Supabase dan dapat digunakan kembali saat masuk dari perangkat lain.</p>
-  <p id="historyStatus" style="font-size:12px;color:#62e8b5" aria-live="polite">Riwayat tersimpan di perangkat: 0 pesan.</p>
-  <p id="reply" aria-live="polite">GIA siap menyambutmu!</p>
- </section>
+
  <section class="card">
   <h3>⚡ Laboratorium Elektronika</h3>
   <p>Belajar komponen dan rangkaian elektronik.</p>
