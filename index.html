@@ -218,6 +218,7 @@ let isListening = false;
 let autoConversation = false;
 let wakeWordMode = false;
 let voiceProcessing = false;
+let awaitingWakeCommand = false;
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (SpeechRecognitionAPI) {
@@ -237,17 +238,27 @@ if (SpeechRecognitionAPI) {
   const spokenText = event.results[event.results.length-1][0].transcript.trim();
   if(wakeWordMode){
    const found = /halo[\s,.-]*kawan/i.exec(spokenText);
+   if(awaitingWakeCommand){
+    awaitingWakeCommand=false;
+    voiceProcessing=true;
+    document.getElementById("question").value = spokenText;
+    document.getElementById("voiceStatus").textContent = "Pertanyaan diterima. KAWAN AI sedang menyiapkan jawaban.";
+    ask();
+    return;
+   }
    if(!found){
     document.getElementById("voiceStatus").textContent = "Mode siaga: ucapkan “Halo Kawan” untuk memanggil AI.";
     return;
    }
    const command = spokenText.slice(found.index + found[0].length).replace(/^[\s,.:;!?-]+/,"").trim();
-   voiceProcessing=true;
    if(!command){
-    document.getElementById("voiceStatus").textContent = "KAWAN AI aktif. Silakan sampaikan pertanyaan.";
-    speakReply("Ya, kawan. Ada yang bisa saya bantu?");
+    awaitingWakeCommand=true;
+    voiceProcessing=true;
+    document.getElementById("voiceStatus").textContent = "KAWAN AI siap. Silakan sampaikan pertanyaanmu.";
+    speakReply("Ya, kawan. Silakan sampaikan pertanyaanmu.");
     return;
    }
+   voiceProcessing=true;
    document.getElementById("question").value = command;
    document.getElementById("voiceStatus").textContent = "Panggilan diterima. KAWAN AI sedang menyiapkan jawaban.";
    ask();
@@ -353,6 +364,7 @@ function toggleWakeWord(){
  }
  wakeWordMode=!wakeWordMode;
  if(wakeWordMode){
+  awaitingWakeCommand=false;
   autoConversation=false;
   voiceProcessing=false;
   document.getElementById("autoButton").textContent="🔁 Mode otomatis mati";
@@ -364,6 +376,7 @@ function toggleWakeWord(){
  document.getElementById("voiceStatus").textContent=wakeWordMode
   ? "Mode siaga aktif. Ucapkan “Halo Kawan” untuk memanggil AI. Biarkan halaman KAWAN AI tetap terbuka."
   : "Pemanggil suara dimatikan.";
+ if(!wakeWordMode) awaitingWakeCommand=false;
  if(wakeWordMode && !isListening) startListeningAgain();
 }
 
@@ -384,6 +397,7 @@ function toggleListening(){
   recognition.stop();
   autoConversation=false;
   wakeWordMode=false;
+  awaitingWakeCommand=false;
   voiceProcessing=false;
   document.getElementById("autoButton").textContent="🔁 Mode otomatis mati";
   document.getElementById("autoButton").style.background="#344d6b";
