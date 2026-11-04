@@ -304,6 +304,50 @@ main{max-width:920px;padding-top:20px}
 @keyframes gia-think-pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,197,107,.08),0 12px 35px #05081688}50%{box-shadow:0 0 0 5px rgba(245,197,107,.18),0 12px 35px #05081688}}
 @media(prefers-reduced-motion:reduce){.gia-equalizer i,.gia-hero.gia-listening .gia-avatar-frame,.gia-hero.gia-thinking .gia-avatar-frame{animation:none}}
 
+
+/* GIA home screen: centered avatar and prominent voice action */
+.gia-home{
+ display:flex;flex-direction:column;align-items:center;text-align:center;
+ gap:13px;padding:26px 20px 22px;min-height:0;
+ background:
+  radial-gradient(ellipse at 50% 48%,rgba(146,103,255,.28),transparent 39%),
+  radial-gradient(circle at 50% 0%,rgba(92,139,255,.2),transparent 50%),
+  linear-gradient(155deg,#1a2852,#292052 55%,#102743);
+ border:1px solid rgba(190,164,255,.55);
+ box-shadow:0 22px 55px rgba(40,25,100,.35)
+}
+.gia-home-copy{max-width:520px}
+.gia-eyebrow{display:inline-block;padding:6px 11px;border:1px solid #a995ed77;border-radius:30px;background:#ffffff0d;color:#d6c9ff;font-size:10px;letter-spacing:2px;font-weight:700}
+.gia-home-copy h2{margin:8px 0 5px;font-size:clamp(25px,6vw,34px);letter-spacing:-.7px;color:#fff}
+.gia-home-copy p{margin:0;color:#d9ddf7;font-size:14px;line-height:1.55}
+.gia-home-avatar{display:flex;flex-direction:column;align-items:center;gap:9px}
+.gia-home .gia-avatar-frame{
+ width:clamp(148px,43vw,205px);max-width:none;aspect-ratio:1;
+ border-radius:50%;padding:5px;
+ border:2px solid #c6adff;
+ background:linear-gradient(140deg,#b79aff,#5f78db,#7b54c7);
+ box-shadow:0 0 0 8px #b9a2ff15,0 0 42px #a783ff70,0 18px 40px #05081688;
+ animation:gia-home-float 4s ease-in-out infinite
+}
+.gia-home .gia-avatar-frame img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.gia-home .gia-avatar-state{color:#e7dcff;font-size:13px;font-weight:600}
+.gia-home-actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;width:100%;max-width:430px}
+.gia-home-actions button{min-height:47px;border-radius:15px;padding:12px 18px;font-weight:700}
+#giaHomeTalk{flex:1;background:linear-gradient(135deg,#a17bff,#6478e8);box-shadow:0 8px 25px #8a69ed55}
+.gia-home-actions .gia-home-type{background:#ffffff12;border:1px solid #d5c9ff55;color:#f4efff}
+.gia-home-hint{font-size:11px;color:#c7c9e7;min-height:16px}
+.gia-home.gia-listening .gia-avatar-frame{animation:gia-listen-pulse 1.8s ease-in-out infinite}
+.gia-home.gia-thinking .gia-avatar-frame{animation:gia-think-pulse 1.25s ease-in-out infinite}
+.gia-home.gia-speaking .gia-avatar-frame{box-shadow:0 0 0 8px #b9a2ff22,0 0 55px #b58cffbb,0 18px 40px #05081688}
+@keyframes gia-home-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media(max-width:560px){
+ .gia-home{padding:22px 14px 18px;gap:11px;border-radius:22px}
+ .gia-home .gia-avatar-frame{width:clamp(145px,46vw,185px)}
+ .gia-home-actions{gap:7px}
+ .gia-home-actions button{font-size:12px;padding:11px 13px}
+}
+@media(prefers-reduced-motion:reduce){.gia-home .gia-avatar-frame{animation:none}}
+
 </style>
 </head>
 <body>
@@ -348,16 +392,21 @@ main{max-width:920px;padding-top:20px}
  </section>
  <div id="appArea">
 
- <section class="card gia-hero" aria-label="Sambutan avatar GIA">
-  <div class="gia-hero-copy">
-   <h2>Halo, Kawan! Saya GIA 💜</h2>
-   <p>Sahabat AI perempuan yang ramah, lembut, dan siap menemani kamu belajar, berkarya, serta mencari pengetahuan.</p>
-   <div class="gia-greeting">✨ Senang bisa bersama kamu hari ini.</div>
+ <section class="card gia-hero gia-home" aria-label="Beranda asisten virtual GIA">
+  <div class="gia-home-copy">
+   <span class="gia-eyebrow">ASISTEN AI PRIBADI</span>
+   <h2>Halo, Kawan! 💜</h2>
+   <p>Saya GIA. Siap mendengarkan, membantu, dan belajar bersama kamu.</p>
   </div>
-  <div>
+  <div class="gia-home-avatar">
    <div class="gia-avatar-frame"><img src="./gia-avatar.svg" alt="Avatar perempuan GIA" onerror="this.style.display='none'"><span class="gia-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
-   <div class="gia-avatar-note">Wajah virtual GIA</div><div class="gia-avatar-state" id="giaAvatarState" aria-live="polite">Siap menemani</div>
+   <div class="gia-avatar-state" id="giaAvatarState" aria-live="polite">Siap menemani</div>
   </div>
+  <div class="gia-home-actions">
+   <button type="button" id="giaHomeTalk" onclick="toggleListening()">🎙️ Mulai bicara dengan GIA</button>
+   <button type="button" class="gia-home-type" onclick="document.getElementById('giaChat').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('question').focus(),350)">✍️ Ketik pesan</button>
+  </div>
+  <div class="gia-home-hint" id="giaHomeHint">Tekan tombol bicara, lalu izinkan akses mikrofon.</div>
  </section>
  <nav class="gia-shortcuts" aria-label="Navigasi cepat GIA">
   <button type="button" onclick="document.getElementById('giaChat').scrollIntoView({behavior:'smooth'})">💬 Chat</button>
@@ -768,6 +817,17 @@ function setGiaAvatarState(state){
  hero.classList.toggle("gia-speaking",state==="speaking");
  hero.classList.toggle("gia-thinking",state==="thinking");
  label.textContent=state==="listening"?"GIA sedang mendengarkan":state==="speaking"?"GIA sedang berbicara":state==="thinking"?"GIA sedang berpikir":"Siap menemani";
+ const homeButton=document.getElementById("giaHomeTalk");
+ const hint=document.getElementById("giaHomeHint");
+ if(homeButton){
+  homeButton.textContent=(isListening || autoConversation)?"⏹️ Hentikan percakapan":state==="speaking"?"🔊 GIA sedang berbicara":"🎙️ Mulai bicara dengan GIA";
+ }
+ if(hint){
+  hint.textContent=state==="listening"?"GIA sedang mendengarkan. Silakan bicara.":
+   state==="thinking"?"GIA sedang menyusun jawaban...":
+   state==="speaking"?"Dengarkan jawaban GIA.":
+   "Tekan tombol bicara, lalu izinkan akses mikrofon.";
+ }
 }
 function speakReply(text){
  if(!voiceEnabled || !("speechSynthesis" in window)){
