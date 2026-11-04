@@ -488,6 +488,16 @@ function startListeningAgain(){
  }
 }
 
+function getGiaVoice(){
+ const voices = window.speechSynthesis.getVoices();
+ const indonesian = voices.filter(v => /^id(-|_)/i.test(v.lang));
+ // Prefer a voice whose provider/name explicitly identifies a feminine voice.
+ const femaleHint = /female| wanita|perempuan|siti|gadis|susan|google.*indonesia/i;
+ return indonesian.find(v => femaleHint.test(v.name)) ||
+        indonesian.find(v => /google/i.test(v.name)) ||
+        indonesian[0] || voices.find(v => /id/i.test(v.lang)) || null;
+}
+
 function speakReply(text){
  if(!voiceEnabled || !("speechSynthesis" in window)){
   voiceProcessing=false;
@@ -500,8 +510,14 @@ function speakReply(text){
  window.speechSynthesis.cancel();
  const utterance = new SpeechSynthesisUtterance(text);
  utterance.lang = "id-ID";
- utterance.rate = 0.96;
- utterance.pitch = 1.12;
+ utterance.rate = 0.94;
+ utterance.pitch = 1.18;
+ const giaVoice = getGiaVoice();
+ if(giaVoice) utterance.voice = giaVoice;
+ utterance.onstart = () => {
+  const voiceLabel = giaVoice ? giaVoice.name : "suara bawaan perangkat";
+  document.getElementById("voiceStatus").textContent = "GIA sedang berbicara · " + voiceLabel;
+ };
  utterance.onend = () => {
   voiceProcessing=false;
   if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,500);
@@ -515,7 +531,6 @@ function speakReply(text){
  };
  window.speechSynthesis.speak(utterance);
 }
-
 function toggleAutoConversation(){
  autoConversation = !autoConversation;
  if(autoConversation && wakeWordMode){
