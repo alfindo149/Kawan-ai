@@ -270,8 +270,18 @@ if (SpeechRecognitionAPI) {
   ask();
  };
  recognition.onerror = (event) => {
-  const messages = {"not-allowed":"Izin mikrofon ditolak. Izinkan mikrofon untuk situs ini.","no-speech":"Suara belum terdengar. Coba bicara lebih dekat ke mikrofon.","network":"Pengenalan suara membutuhkan koneksi internet."};
+  const messages = {"not-allowed":"Izin mikrofon ditolak. Izinkan mikrofon untuk situs ini.","service-not-allowed":"Layanan pengenalan suara tidak diizinkan oleh browser.","no-speech":"Suara belum terdengar. Coba bicara lebih dekat ke mikrofon.","network":"Pengenalan suara membutuhkan koneksi internet."};
   document.getElementById("voiceStatus").textContent = messages[event.error] || ("Mikrofon bermasalah: " + event.error);
+  if(event.error==="not-allowed" || event.error==="service-not-allowed"){
+   wakeWordMode=false;
+   autoConversation=false;
+   awaitingWakeCommand=false;
+   voiceProcessing=false;
+   document.getElementById("wakeButton").textContent="🗣️ Halo Kawan: mati";
+   document.getElementById("wakeButton").style.background="#344d6b";
+   document.getElementById("autoButton").textContent="🔁 Mode otomatis mati";
+   document.getElementById("autoButton").style.background="#344d6b";
+  }
  };
 } else {
  document.getElementById("micButton").disabled = true;
@@ -315,7 +325,11 @@ function startListeningAgain(){
 
 function speakReply(text){
  if(!voiceEnabled || !("speechSynthesis" in window)){
-  if(autoConversation) document.getElementById("voiceStatus").textContent="Aktifkan suara jawaban agar mode otomatis dapat bergantian mendengarkan.";
+  voiceProcessing=false;
+  document.getElementById("voiceStatus").textContent = !voiceEnabled
+   ? "Suara jawaban mati. Mikrofon akan kembali mendengarkan."
+   : "Browser tidak mendukung suara jawaban. Mikrofon akan kembali mendengarkan.";
+  if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,700);
   return;
  }
  window.speechSynthesis.cancel();
@@ -445,7 +459,7 @@ async function ask(){
   updateHistoryStatus("Riwayat terkirim pada permintaan tadi: "+sentHistoryCount+" pesan. Tersimpan sekarang: "+chatHistory.length+" pesan.");
   r.textContent=data.reply;
   speakReply(data.reply);
-  document.getElementById("voiceStatus").textContent = voiceEnabled ? "KAWAN AI sedang membacakan jawaban. Tekan mikrofon untuk berbicara lagi." : "Jawaban diterima. Suara sedang dimatikan.";
+  document.getElementById("voiceStatus").textContent = voiceEnabled ? "KAWAN AI sedang membacakan jawaban." : "Jawaban diterima. Suara mati; mikrofon akan aktif kembali jika mode siaga/otomatis digunakan.";
   document.getElementById("question").value="";
  }catch(error){
   console.error(error);
