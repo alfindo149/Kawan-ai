@@ -164,6 +164,7 @@ async function refreshAuth(session){
    }
    saveHistory();
    updateHistoryStatus("Memori akun tersinkron: "+chatHistory.length+" pesan.");
+   if(typeof loadPendingKnowledge==="function") await loadPendingKnowledge();
   }catch(error){
    console.warn("Sinkronisasi memori gagal:",error);
    updateHistoryStatus("Memori online belum tersinkron. Periksa koneksi atau masuk kembali.");
