@@ -5,8 +5,8 @@
     <application
         android:allowBackup="true"
         android:label="GIA"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:icon="@drawable/gia_icon"
+        android:roundIcon="@drawable/gia_icon"
         android:usesCleartextTraffic="false"
         android:theme="@android:style/Theme.Material.NoActionBar"
         android:supportsRtl="true">
