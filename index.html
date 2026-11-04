@@ -402,6 +402,45 @@ main{max-width:920px;padding-top:20px}
 }
 @media(prefers-reduced-motion:reduce){.gia-home .gia-avatar-frame{animation:none!important}}
 
+
+/* GIA live avatar motion v16: state applies to the actual home panel */
+.gia-home.gia-listening .gia-avatar-frame{
+ animation:gia-home-listening 1.65s ease-in-out infinite;
+ border-color:#75e5ff;
+}
+.gia-home.gia-thinking .gia-avatar-frame{
+ animation:gia-home-thinking 1.15s ease-in-out infinite;
+ border-color:#ffd58a;
+}
+.gia-home.gia-speaking .gia-avatar-frame{
+ animation:gia-home-speaking .72s ease-in-out infinite alternate;
+ border-color:#e2c3ff;
+}
+.gia-home.gia-speaking .gia-equalizer{opacity:1;transform:translateY(0)}
+.gia-home.gia-speaking .gia-equalizer i{animation:gia-wave .48s ease-in-out infinite alternate}
+.gia-home.gia-speaking .gia-equalizer i:nth-child(2){animation-delay:.09s}
+.gia-home.gia-speaking .gia-equalizer i:nth-child(3){animation-delay:.18s}
+.gia-home.gia-speaking .gia-equalizer i:nth-child(4){animation-delay:.13s}
+.gia-home.gia-speaking .gia-equalizer i:nth-child(5){animation-delay:.04s}
+.gia-home.gia-listening .gia-avatar-state:before{background:#75e5ff;box-shadow:0 0 11px #75e5ff}
+.gia-home.gia-thinking .gia-avatar-state:before{background:#ffd58a;box-shadow:0 0 11px #ffd58a}
+.gia-home.gia-speaking .gia-avatar-state:before{background:#d5aaff;box-shadow:0 0 11px #d5aaff}
+@keyframes gia-home-listening{
+ 0%,100%{transform:scale(1);box-shadow:0 0 0 7px #75e5ff12,0 0 34px #75e5ff55,0 18px 40px #05081688}
+ 50%{transform:scale(1.025);box-shadow:0 0 0 13px #75e5ff20,0 0 48px #75e5ff88,0 18px 40px #05081688}
+}
+@keyframes gia-home-thinking{
+ 0%,100%{transform:scale(1);filter:saturate(1)}
+ 50%{transform:scale(1.018);filter:saturate(1.22) brightness(1.08)}
+}
+@keyframes gia-home-speaking{
+ from{transform:scale(1);filter:brightness(1)}
+ to{transform:scale(1.035);filter:brightness(1.12)}
+}
+@media(prefers-reduced-motion:reduce){
+ .gia-home.gia-listening .gia-avatar-frame,.gia-home.gia-thinking .gia-avatar-frame,.gia-home.gia-speaking .gia-avatar-frame,.gia-home.gia-speaking .gia-equalizer i{animation:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -865,7 +904,7 @@ function getGiaVoice(){
 }
 
 function setGiaAvatarState(state){
- const hero=document.querySelector(".gia-hero");
+ const hero=document.querySelector(".gia-home, .gia-hero");
  const label=document.getElementById("giaAvatarState");
  if(!hero || !label) return;
  hero.classList.toggle("gia-listening",state==="listening");
