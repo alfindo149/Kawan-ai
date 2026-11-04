@@ -330,10 +330,19 @@ if (SpeechRecognitionAPI) {
  recognition.lang = "id-ID";
  recognition.continuous = false;
  recognition.interimResults = false;
- recognition.onstart = () => { isListening=true; document.getElementById("micButton").textContent="⏹️ Berhenti bicara"; document.getElementById("voiceStatus").textContent="GIA sedang mendengarkan..."; };
+ recognition.onstart = () => {
+  isListening=true;
+  document.getElementById("micButton").textContent=(autoConversation || wakeWordMode)
+   ? "⏹️ Hentikan percakapan"
+   : "⏹️ Berhenti bicara";
+  document.getElementById("voiceStatus").textContent="GIA sedang mendengarkan. Silakan bicara dengan jelas.";
+ };
  recognition.onend = () => {
   isListening=false;
-  document.getElementById("micButton").textContent="🎙️ Mulai bicara";
+  const micButton=document.getElementById("micButton");
+  micButton.textContent=(autoConversation || wakeWordMode)
+   ? "⏹️ Hentikan percakapan"
+   : "🎙️ Mulai ngobrol dengan GIA";
   if((wakeWordMode || autoConversation) && !voiceProcessing && !(window.speechSynthesis && window.speechSynthesis.speaking)){
    setTimeout(startListeningAgain,700);
   }
@@ -376,8 +385,11 @@ if (SpeechRecognitionAPI) {
  recognition.onerror = (event) => {
   const messages = {"not-allowed":"Izin mikrofon ditolak. Izinkan mikrofon untuk situs ini.","service-not-allowed":"Layanan pengenalan suara tidak diizinkan oleh browser.","no-speech":"Suara belum terdengar. Coba bicara lebih dekat ke mikrofon.","network":"Pengenalan suara membutuhkan koneksi internet."};
   document.getElementById("voiceStatus").textContent = messages[event.error] || ("Mikrofon bermasalah: " + event.error);
-  if(event.error==="no-speech" && (wakeWordMode || autoConversation) && !voiceProcessing){
-   setTimeout(startListeningAgain,900);
+  if(["no-speech","network"].includes(event.error) && (wakeWordMode || autoConversation) && !voiceProcessing){
+   document.getElementById("voiceStatus").textContent=event.error==="network"
+    ? "Koneksi pengenalan suara terputus. GIA mencoba mendengarkan kembali..."
+    : "GIA masih siap. Silakan bicara...";
+   setTimeout(startListeningAgain,event.error==="network" ? 1800 : 900);
   }
   if(event.error==="not-allowed" || event.error==="service-not-allowed"){
    wakeWordMode=false;
