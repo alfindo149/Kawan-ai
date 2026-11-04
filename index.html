@@ -247,8 +247,7 @@ main{max-width:920px;padding-top:20px}
 .gia-avatar-frame{max-width:190px;border:2px solid #c2a8ff;box-shadow:0 15px 42px #050816aa}
 .gia-shortcuts{
  position:sticky;top:62px;z-index:15;display:flex;gap:8px;
- padding:9px;margin:0 0 15px;border:1px solid #35466e;
- border-radius:17px;background:rgba(12,19,39,.91);
+ padding:9px;margin:0 0 15px;border:1px solid #35466e; border-radius:17px;background:rgba(12,19,39,.91);
  backdrop-filter:blur(14px);box-shadow:0 8px 25px #0005
 }
 .gia-shortcuts button{flex:1;min-width:0;padding:10px 7px;font-size:12px;border-radius:12px}
@@ -799,7 +798,7 @@ async function signUp(){
  const status=document.getElementById("authStatus");
  if(!email || password.length<6){status.textContent="Masukkan email yang benar dan kata sandi minimal 6 karakter.";return;}
  status.textContent="Sedang membuat akun...";
- const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://alfindo149.github.io/GIA-ai/"}});
+ const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://alfindo149.github.io/Kawan-ai/"}});
  if(error){status.textContent="Pendaftaran gagal: "+error.message;return;}
  if(data.session){await refreshAuth(data.session);status.textContent="Akun berhasil dibuat dan kamu sudah masuk.";}
  else{status.textContent="Pendaftaran diterima. Periksa email untuk tautan konfirmasi, lalu masuk.";}
@@ -819,7 +818,7 @@ async function requestPasswordReset(){
  const status=document.getElementById("authStatus");
  if(!email){status.textContent="Masukkan alamat email akun GIA terlebih dahulu.";return;}
  status.textContent="Sedang mengirim tautan pemulihan...";
- const redirectTo="https://alfindo149.github.io/GIA-ai/";
+ const redirectTo="https://alfindo149.github.io/Kawan-ai/";
  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo});
  if(error){status.textContent="Tautan pemulihan gagal dikirim: "+error.message;return;}
  status.textContent="Permintaan dikirim. Periksa kotak masuk dan folder Spam email tersebut, lalu buka tautan pemulihan.";
