@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 640">
+<defs>
+ <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#4931a5"/><stop offset=".55" stop-color="#152f72"/><stop offset="1" stop-color="#07162f"/></linearGradient>
+ <linearGradient id="hair" x2="1" y2="1"><stop stop-color="#24152d"/><stop offset=".5" stop-color="#100f24"/><stop offset="1" stop-color="#49305d"/></linearGradient>
+ <linearGradient id="skin" x2=".9" y2="1"><stop stop-color="#ffe0ce"/><stop offset="1" stop-color="#d99b83"/></linearGradient>
+ <linearGradient id="coat" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#c9d8ff"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="9"/></filter>
+</defs>
+<rect width="480" height="640" rx="32" fill="url(#bg)"/>
+<circle cx="240" cy="225" r="175" fill="#8d6cff" opacity=".28" filter="url(#glow)"/>
+<path d="M42 640c10-128 66-205 198-205s188 77 198 205" fill="#7a5cff" opacity=".3"/>
+<!-- hair behind -->
+<path d="M95 267C72 108 147 38 246 43c115 5 169 95 145 240l-14 202c-28 54-69 68-136 68-77 0-123-27-145-83z" fill="url(#hair)"/>
+<!-- shoulders and uniform -->
+<path d="M65 640c9-120 43-181 132-205l43 44 44-44c91 24 125 85 132 205z" fill="url(#coat)"/>
+<path d="M196 435l44 47 44-47 31 205H165z" fill="#ffffff"/>
+<path d="M221 485h38l21 155h-80z" fill="#5032c8"/>
+<path d="M100 505c36-47 70-65 104-70l36 42-55 163H65z" fill="#e7edff"/>
+<path d="M380 505c-36-47-70-65-104-70l-36 42 55 163h120z" fill="#d6e2ff"/>
+<path d="M203 445l37 37 37-37" fill="none" stroke="#8b6aff" stroke-width="7"/>
+<!-- neck -->
+<path d="M197 365h86v92c-22 30-64 30-86 0z" fill="url(#skin)"/>
+<!-- face -->
+<path d="M143 193c0-83 42-125 98-125s98 42 98 125v103c0 87-44 140-98 140s-98-53-98-140z" fill="url(#skin)"/>
+<!-- hair cap and sides -->
+<path d="M126 248c-21-111 24-190 111-198 98-9 145 69 119 191-22-24-33-64-35-100-43 37-112 52-175 45-1 25-7 46-20 62z" fill="url(#hair)"/>
+<path d="M133 204c-21 59-20 179 9 246-48-30-61-107-48-194 7-55 21-91 39-110zM345 181c29 54 32 183-5 270 48-34 60-106 49-194-7-55-22-90-44-111z" fill="url(#hair)"/>
+<!-- brows -->
+<path d="M170 236q28-18 54 0M258 236q28-18 54 0" stroke="#563b3b" stroke-width="8" fill="none" stroke-linecap="round"/>
+<!-- eyes -->
+<path d="M170 263q27-24 54 0-27 31-54 0M258 263q27-24 54 0-27 31-54 0" fill="#fff"/>
+<ellipse cx="197" cy="263" rx="10" ry="14" fill="#3b2b31"/><ellipse cx="285" cy="263" rx="10" ry="14" fill="#3b2b31"/>
+<circle cx="200" cy="258" r="4" fill="#fff"/><circle cx="288" cy="258" r="4" fill="#fff"/>
+<path d="M240 270l-10 49q10 9 21 0" fill="none" stroke="#bd806f" stroke-width="5" stroke-linecap="round"/>
+<path d="M204 349q36 30 72 0-33 55-72 0" fill="#b94c67"/><path d="M210 350q30 12 60 0" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+<!-- earrings -->
+<circle cx="136" cy="324" r="9" fill="#f7d77d"/><circle cx="344" cy="324" r="9" fill="#f7d77d"/>
+<path d="M136 334v18m208-18v18" stroke="#f7d77d" stroke-width="4"/>
+<!-- hair strands -->
+<path d="M122 112q-40 110 7 290M352 106q42 120-5 296M153 77q-18 100 4 157M322 77q18 100-4 157" fill="none" stroke="#75527b" stroke-width="7" opacity=".55" stroke-linecap="round"/>
+<!-- GIA badge -->
+<circle cx="327" cy="526" r="37" fill="#5130c7"/><path d="M304 532q23-31 46 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><text x="327" y="546" font-size="14" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="bold">GIA</text>
+<path d="M42 60h70M368 60h70M42 580h70M368 580h70" stroke="#8be9ff" stroke-width="3" opacity=".6"/>
+<text x="240" y="615" text-anchor="middle" font-family="Arial" font-size="13" letter-spacing="4" fill="#d9d3ff">SAHABAT AI</text>
+</svg>
