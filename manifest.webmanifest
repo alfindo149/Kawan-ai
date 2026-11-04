@@ -24,5 +24,12 @@
       "purpose": "any"
     }
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "./Screenshot_20261104_100319.jpg",
+      "type": "image/jpeg",
+      "form_factor": "narrow"
+    }
+  ]
 }
