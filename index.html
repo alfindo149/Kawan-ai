@@ -171,6 +171,10 @@ footer{color:#64748b;font-size:12px;border-top:1px solid var(--line)}
   <button type="button" onclick="submitKnowledge()">Simpan untuk diperiksa</button>
   <button type="button" onclick="loadPendingKnowledge()" style="background:#344d6b;margin-left:6px">Muat daftar pemeriksaan</button>
   <p id="knowledgeStatus" class="auth-note" aria-live="polite">Masukkan hasil riset untuk membuat usulan pengetahuan.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+   <h3 style="margin:14px 0 6px">Usulan pengetahuan</h3>
+   <button type="button" onclick="loadPendingKnowledge()" style="background:#202a39;border:1px solid #344155;padding:8px 12px">↻ Muat ulang</button>
+  </div>
   <div id="pendingKnowledgeList"></div>
  </section>
  <section class="card">
@@ -649,7 +653,7 @@ async function loadPendingKnowledge(){
  const list=document.getElementById("pendingKnowledgeList");
  if(!currentSession?.user?.id){status.textContent="Silakan masuk terlebih dahulu.";return;}
  status.textContent="Memuat usulan...";
- const {data,error}=await supabaseClient.from("kawan_knowledge").select("id,category,title,content,source_name,source_url,learned_at").eq("status","pending_review").order("learned_at",{ascending:false}).limit(20);
+ const {data,error}=await supabaseClient.from("kawan_knowledge").select("id,category,title,content,source_name,source_url,learned_at").eq("user_id",currentSession.user.id).eq("status","pending_review").order("learned_at",{ascending:false}).limit(20);
  if(error){status.textContent="Gagal memuat daftar: "+error.message;return;}
  list.replaceChildren();
  if(!data?.length){status.textContent="Tidak ada usulan yang menunggu pemeriksaan.";return;}
@@ -671,7 +675,7 @@ async function loadPendingKnowledge(){
 async function reviewKnowledge(id,statusValue){
  const status=document.getElementById("knowledgeStatus");
  if(!currentSession?.user?.id){status.textContent="Silakan masuk terlebih dahulu.";return;}
- const {error}=await supabaseClient.from("kawan_knowledge").update({status:statusValue,reviewed_at:new Date().toISOString()}).eq("id",id).eq("status","pending_review");
+ const {error}=await supabaseClient.from("kawan_knowledge").update({status:statusValue,reviewed_at:new Date().toISOString()}).eq("id",id).eq("user_id",currentSession.user.id).eq("status","pending_review");
  if(error){status.textContent="Pembaruan gagal: "+error.message;return;}
  status.textContent=statusValue==="approved"?"Pengetahuan disetujui dan dapat dipakai KAWAN AI.":"Usulan ditolak.";
  await loadPendingKnowledge();
