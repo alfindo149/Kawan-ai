@@ -114,6 +114,110 @@ footer{color:#64748b;font-size:12px;border-top:1px solid var(--line)}
 @keyframes gia-glow{from{opacity:.35}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.gia-avatar-frame img,.gia-hero.gia-speaking .gia-avatar-frame:before{animation:none}}
 
+
+/* GIA visual refresh — violet/blue glass dashboard */
+:root{
+ --bg:#080d1b;--panel:#111a2d;--panel2:#18243b;--line:#2b3c5d;
+ --muted:#aebbd4;--accent:#9b7bff;--text:#f5f3ff;
+ color-scheme:dark
+}
+html{background:#080d1b}
+body{
+ background:
+  radial-gradient(ellipse at 12% 0%,rgba(73,91,190,.22),transparent 38%),
+  radial-gradient(ellipse at 95% 24%,rgba(140,76,220,.15),transparent 32%),
+  #080d1b;
+ color:var(--text)
+}
+header{
+ background:rgba(9,15,31,.88);
+ border-bottom:1px solid rgba(150,137,255,.22);
+ box-shadow:0 8px 30px rgba(0,0,0,.18)
+}
+header h1{color:#e5dcff}
+header .status{background:rgba(36,180,133,.1);border-color:#286e5b;color:#7ce8c2}
+main{max-width:900px;padding-top:24px}
+.card{
+ background:linear-gradient(145deg,rgba(20,31,54,.97),rgba(14,22,40,.97));
+ border:1px solid rgba(125,145,198,.2);
+ border-radius:22px;
+ box-shadow:0 14px 36px rgba(0,0,0,.2);
+ padding:22px
+}
+.card h2,.card h3{color:#f4f0ff}
+.card h2{font-size:clamp(20px,4vw,26px)}
+.card h3{font-size:18px}
+.card p{line-height:1.65}
+button{
+ background:linear-gradient(135deg,#8060ec,#5c70db);
+ color:white;border:1px solid rgba(206,195,255,.2);
+ border-radius:14px;padding:12px 17px;
+ box-shadow:0 5px 16px rgba(89,79,190,.16)
+}
+button:hover{filter:brightness(1.12);box-shadow:0 7px 20px rgba(112,94,225,.24)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+ outline:2px solid #b9a7ff;outline-offset:3px
+}
+input,textarea,select{
+ background:#0a1326;border:1px solid #354568;color:#f5f3ff;
+ border-radius:14px
+}
+input:focus,textarea:focus,select:focus{
+ border-color:#9b7bff;box-shadow:0 0 0 3px rgba(155,123,255,.16)
+}
+.auth-note,.voice-status{color:#aebbd4}
+#reply{
+ background:linear-gradient(145deg,#0b1428,#101a30);
+ border:1px solid #344568;border-radius:18px
+}
+#question{background:#0a1326;border-color:#43547a}
+#appArea>.card:first-child{
+ padding:18px 20px;background:linear-gradient(120deg,rgba(72,76,150,.18),rgba(25,38,68,.18));
+ border:1px solid rgba(155,123,255,.2);border-radius:20px
+}
+.gia-hero{
+ background:
+  radial-gradient(circle at 80% 18%,rgba(165,120,255,.28),transparent 36%),
+  linear-gradient(125deg,#182b58 0%,#28204f 58%,#142a4b 100%);
+ border:1px solid rgba(173,147,255,.45);
+ box-shadow:0 18px 42px rgba(31,22,75,.3)
+}
+.gia-hero-copy h2{color:#fff}
+.gia-hero-copy p{color:#e1e4ff}
+.gia-hero .gia-greeting{background:rgba(124,91,220,.35);border:1px solid #8d7ce0}
+.gia-avatar-frame{border-color:#b7a0ff;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.gia-avatar-note,.gia-avatar-state{color:#d4ccff}
+#universalDashboard .site-link{
+ background:linear-gradient(145deg,#182641,#111d33);
+ border-color:#35496f;border-radius:16px
+}
+.site-link small{color:#aebbd4}
+#knowledgeCenter>div[style*="background:#0b111b"]{
+ background:linear-gradient(145deg,#111d35,#0b1428)!important;
+ border-color:#3b4e76!important;border-radius:18px!important
+}
+#giaLearningButton{background:linear-gradient(135deg,#895de8,#5d66d9)!important}
+#researchButton{background:linear-gradient(135deg,#287fca,#3565c8)}
+#pendingKnowledgeList>div,.history-entry:hover{border-color:#58669a}
+#historySidebar{background:#0d1629;border-right-color:#344568}
+.new-chat-button{background:linear-gradient(135deg,#604db2,#3e5aab);border-color:#7566c7}
+.history-entry{color:#f1efff}
+footer{border-color:rgba(125,145,198,.18);color:#8494b3}
+@media(max-width:560px){
+ main{padding:14px 11px 70px}
+ .card{padding:17px;border-radius:18px;margin-bottom:13px}
+ .gia-hero{grid-template-columns:minmax(0,1fr) 108px;gap:10px;padding:14px}
+ .gia-avatar-frame{max-width:108px}
+ .gia-hero-copy h2{font-size:20px}
+ .site-grid{gap:8px}
+ .site-link{padding:12px;font-size:13px}
+ .voice-row button{min-width:calc(50% - 5px)}
+ #send{width:100%;margin:8px 0 0}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
+
 </style>
 </head>
 <body>
