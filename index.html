@@ -601,6 +601,24 @@ footer{border-color:#ffffff16;color:#8e9abb}
  .gia-home .gia-avatar-frame,.gia-home.gia-listening .gia-avatar-frame,.gia-home.gia-thinking .gia-avatar-frame,.gia-home.gia-speaking .gia-avatar-frame{animation:none!important}
 }
 
+
+/* GIA Creative Studio */
+.gia-creative{border-color:rgba(177,151,255,.48);background:linear-gradient(145deg,#1b2450,#111a35)}
+.gia-creative-intro{color:#c9c8ed;font-size:13px;line-height:1.6}
+.gia-creative-tabs{display:flex;gap:8px;margin:14px 0}
+.gia-creative-tabs button{flex:1;background:#ffffff12;border:1px solid #ffffff20}
+.gia-creative-tabs button.active{background:linear-gradient(135deg,#9069ef,#536fe0);border-color:#bcaaff}
+.gia-creative textarea{width:100%;min-height:108px;resize:vertical;padding:14px;border-radius:14px;border:1px solid #4b5681;background:#0b1227;color:#fff;font:inherit;margin:8px 0}
+.gia-creative select,.gia-creative input[type=file]{width:100%;margin:7px 0 12px;padding:12px;border-radius:12px;background:#0b1227;color:#eee;border:1px solid #4b5681}
+.gia-creative-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gia-creative-grid label{font-size:12px;color:#c8c8e8}
+.gia-creative-action{width:100%;margin-top:10px;background:linear-gradient(135deg,#956cf2,#5479e8);min-height:48px}
+.gia-creative-status{min-height:22px;color:#c5c8e8;font-size:12px;line-height:1.5;margin:12px 0}
+.gia-creative-output{display:none;margin-top:14px;padding:12px;border:1px solid #4a5683;border-radius:15px;background:#0a1228}
+.gia-creative-output img,.gia-creative-output video{width:100%;max-height:520px;object-fit:contain;border-radius:10px;background:#050914}
+.gia-creative-download{display:inline-block;margin-top:10px;color:#cfc2ff;font-weight:700;text-decoration:none}
+@media(max-width:560px){.gia-creative-grid{grid-template-columns:1fr}.gia-creative-tabs button{font-size:12px;padding:10px 6px}}
+
 </style>
 </head>
 <body>
@@ -681,6 +699,30 @@ footer{border-color:#ffffff16;color:#8e9abb}
   <div class="gia-chat-tools"><span id="historyStatus" aria-live="polite">Riwayat tersimpan di perangkat: 0 pesan.</span><div><button type="button" onclick="signOut()">Keluar</button><button type="button" onclick="clearMemory()">Hapus memori</button></div></div>
   <p class="gia-memory-note">Memori percakapan tersimpan di akun GIA melalui Supabase dan dapat digunakan kembali saat masuk dari perangkat lain.</p>
   <p id="reply" aria-live="polite">GIA siap menyambutmu!</p>
+ </section>
+
+
+ <section class="card gia-creative" id="giaCreativeStudio">
+  <div class="gia-chat-heading"><div><span class="gia-chat-kicker">GIA CREATIVE STUDIO</span><h3>🎨 Studio Foto & Video</h3></div><span class="gia-online"><i></i> Kreatif</span></div>
+  <p class="gia-creative-intro">Buat gambar dari ide, ubah foto menjadi video pendek, dan simpan hasilnya ke HP. Pembuatan menggunakan model Gemini; hasil dapat memerlukan kuota dan biaya API.</p>
+  <div class="gia-creative-tabs" role="tablist" aria-label="Jenis konten">
+   <button type="button" id="giaImageTab" class="active" onclick="setGiaCreativeMode('image')">🖼️ Buat Foto</button>
+   <button type="button" id="giaVideoTab" onclick="setGiaCreativeMode('video')">🎬 Buat Video</button>
+  </div>
+  <label for="giaCreativePrompt">Ceritakan konten yang ingin dibuat</label>
+  <textarea id="giaCreativePrompt" maxlength="2000" placeholder="Contoh: Buat poster promosi kopi susu dengan gaya fotografi profesional, warna hangat, dan tulisan KOPI NUSANTARA."></textarea>
+  <div class="gia-creative-grid">
+   <div><label for="giaCreativeRatio">Ukuran konten</label><select id="giaCreativeRatio"><option value="9:16">Vertikal 9:16 (Reels/TikTok)</option><option value="1:1">Kotak 1:1</option><option value="16:9">Lebar 16:9 (YouTube)</option><option value="4:5">Feed 4:5</option></select></div>
+   <div><label for="giaCreativeReference">Foto referensi (opsional)</label><input id="giaCreativeReference" type="file" accept="image/png,image/jpeg,image/webp"></div>
+  </div>
+  <p class="auth-note" id="giaCreativeFileNote">Foto referensi bisa dipakai untuk inspirasi gambar atau dianimasikan menjadi video. Maksimal 8 MB.</p>
+  <button type="button" class="gia-creative-action" id="giaCreativeGenerate" onclick="generateGiaCreative()">✨ Buat Foto dengan GIA</button>
+  <p class="gia-creative-status" id="giaCreativeStatus" aria-live="polite">Tulis ide konten, pilih foto jika diperlukan, lalu tekan tombol buat.</p>
+  <div class="gia-creative-output" id="giaCreativeOutput">
+   <img id="giaCreativeImage" alt="Hasil gambar dari GIA" hidden>
+   <video id="giaCreativeVideo" controls playsinline hidden></video>
+   <a class="gia-creative-download" id="giaCreativeDownload" href="#" download="gia-karya">⬇️ Simpan hasil ke HP</a>
+  </div>
  </section>
 
  <section class="card" id="knowledgeCenter">
@@ -1286,6 +1328,80 @@ async function runGiaDailyLearning(){
  }finally{
   button.disabled=false;
   button.textContent="✨ Belajar otomatis sekarang";
+ }
+}
+
+
+const GIA_CREATIVE_ENDPOINT = "https://lyhpalkfznryuwicroaf.supabase.co/functions/v1/gia-creative";
+let giaCreativeMode = "image";
+let giaCreativeObjectUrl = null;
+function setGiaCreativeMode(mode){
+ giaCreativeMode = mode === "video" ? "video" : "image";
+ document.getElementById("giaImageTab").classList.toggle("active",giaCreativeMode==="image");
+ document.getElementById("giaVideoTab").classList.toggle("active",giaCreativeMode==="video");
+ document.getElementById("giaCreativeGenerate").textContent=giaCreativeMode==="image"?"✨ Buat Foto dengan GIA":"🎬 Buat Video dengan GIA";
+ document.getElementById("giaCreativePrompt").placeholder=giaCreativeMode==="image"
+  ?"Contoh: Foto produk sepatu di studio minimalis, pencahayaan profesional, detail tajam."
+  :"Contoh: Animasi sinematik produk kopi berputar perlahan, uap hangat bergerak, kamera mendekat, musik ceria.";
+ document.getElementById("giaCreativeFileNote").textContent=giaCreativeMode==="video"
+  ?"Tambahkan foto untuk dianimasikan menjadi video. Jika kosong, GIA membuat video dari teks. Maksimal 8 MB."
+  :"Foto referensi opsional untuk membantu GIA membuat gambar. Maksimal 8 MB.";
+}
+function giaFileToBase64(file){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve(String(reader.result).split(",")[1]||"");
+  reader.onerror=()=>reject(new Error("Foto tidak bisa dibaca."));
+  reader.readAsDataURL(file);
+ });
+}
+async function generateGiaCreative(){
+ const prompt=document.getElementById("giaCreativePrompt").value.trim();
+ const status=document.getElementById("giaCreativeStatus");
+ const button=document.getElementById("giaCreativeGenerate");
+ const file=document.getElementById("giaCreativeReference").files[0];
+ if(!currentSession?.access_token){status.textContent="Silakan masuk ke akun GIA terlebih dahulu.";return;}
+ if(prompt.length<5){status.textContent="Tulis ide konten minimal 5 karakter.";return;}
+ if(file && (!["image/png","image/jpeg","image/webp"].includes(file.type) || file.size>8*1024*1024)){
+  status.textContent="Gunakan foto PNG, JPG, atau WEBP dengan ukuran maksimal 8 MB.";return;
+ }
+ button.disabled=true;
+ button.textContent=giaCreativeMode==="image"?"GIA sedang membuat foto...":"GIA sedang membuat video...";
+ status.textContent=giaCreativeMode==="image"?"Menghubungi Gemini untuk membuat gambar.":"Sedang membuat video. Proses ini bisa memerlukan beberapa menit; jangan tutup halaman.";
+ document.getElementById("giaCreativeOutput").style.display="none";
+ try{
+  const payload={mode:giaCreativeMode,prompt,aspectRatio:document.getElementById("giaCreativeRatio").value};
+  if(file){payload.image={mimeType:file.type,data:await giaFileToBase64(file)};}
+  const response=await fetch(GIA_CREATIVE_ENDPOINT,{
+   method:"POST",
+   headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+currentSession.access_token},
+   body:JSON.stringify(payload)
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(data.error||"GIA belum bisa membuat konten. Coba lagi.");
+  if(!data.data || !data.mimeType) throw new Error("Hasil dari mesin AI belum lengkap. Coba lagi.");
+  if(giaCreativeObjectUrl) URL.revokeObjectURL(giaCreativeObjectUrl);
+  const bytes=Uint8Array.from(atob(data.data),c=>c.charCodeAt(0));
+  giaCreativeObjectUrl=URL.createObjectURL(new Blob([bytes],{type:data.mimeType}));
+  const image=document.getElementById("giaCreativeImage");
+  const video=document.getElementById("giaCreativeVideo");
+  const download=document.getElementById("giaCreativeDownload");
+  if(data.mimeType.startsWith("image/")){
+   image.src=giaCreativeObjectUrl;image.hidden=false;video.pause();video.removeAttribute("src");video.hidden=true;
+   download.download="gia-karya.png";
+  }else if(data.mimeType.startsWith("video/")){
+   video.src=giaCreativeObjectUrl;video.hidden=false;image.hidden=true;image.removeAttribute("src");
+   download.download="gia-karya.mp4";
+  }else throw new Error("Format hasil belum didukung.");
+  download.href=giaCreativeObjectUrl;
+  document.getElementById("giaCreativeOutput").style.display="block";
+  status.textContent="Berhasil! Hasil karya GIA siap dilihat dan disimpan ke HP.";
+ }catch(error){
+  console.error("GIA Creative:",error);
+  status.textContent="Pembuatan gagal: "+(error.message||"Periksa koneksi, kuota Gemini, dan konfigurasi API.");
+ }finally{
+  button.disabled=false;
+  button.textContent=giaCreativeMode==="image"?"✨ Buat Foto dengan GIA":"🎬 Buat Video dengan GIA";
  }
 }
 
