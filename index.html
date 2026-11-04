@@ -348,6 +348,60 @@ main{max-width:920px;padding-top:20px}
 }
 @media(prefers-reduced-motion:reduce){.gia-home .gia-avatar-frame{animation:none}}
 
+
+/* GIA home refresh v14 — avatar lebih besar, fokus beranda */
+.gia-home{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(230px,310px);
+ grid-template-areas:"copy avatar" "actions avatar" "hint avatar";
+ align-items:center;text-align:left;gap:15px 28px;
+ min-height:340px;padding:28px 34px!important;
+ border-radius:28px!important;
+ background:
+  radial-gradient(ellipse at 78% 48%,rgba(190,157,255,.34),transparent 38%),
+  radial-gradient(ellipse at 15% 0%,rgba(93,143,255,.3),transparent 42%),
+  linear-gradient(130deg,#1a2d62 0%,#34245e 56%,#102c50 100%)!important;
+ border:1px solid rgba(204,183,255,.7)!important;
+ box-shadow:0 24px 60px rgba(35,20,92,.42),inset 0 1px 0 #ffffff24!important;
+}
+.gia-home-copy{grid-area:copy;max-width:560px}
+.gia-home-copy .gia-eyebrow{font-size:11px;letter-spacing:2.2px;padding:8px 13px}
+.gia-home-copy h2{font-size:clamp(29px,4.6vw,42px)!important;line-height:1.12;margin:14px 0 10px!important}
+.gia-home-copy p{font-size:16px!important;line-height:1.7!important;color:#f0eaff!important}
+.gia-home-avatar{grid-area:avatar;justify-self:center;gap:12px}
+.gia-home .gia-avatar-frame{
+ width:clamp(220px,28vw,292px)!important;max-width:none!important;
+ aspect-ratio:1!important;border-radius:50%!important;padding:6px!important;
+ border:2px solid #e0cfff!important;
+ background:linear-gradient(145deg,#e4caff,#8d7cff 48%,#5bd5ff)!important;
+ box-shadow:0 0 0 10px #c2a7ff18,0 0 55px #a783ff88,0 20px 46px #02081799!important;
+}
+.gia-home .gia-avatar-frame img{width:100%;height:100%;object-fit:cover;object-position:center 38%;border-radius:50%}
+.gia-home .gia-avatar-frame:after{bottom:12px;right:12px;background:#24134de8;padding:6px 12px;font-size:12px}
+.gia-home .gia-avatar-state{font-size:13px;font-weight:700;color:#eee5ff}
+.gia-home-actions{grid-area:actions;justify-content:flex-start;width:100%;gap:10px}
+.gia-home-actions button{min-height:48px;padding:13px 18px;font-size:14px}
+.gia-home-actions #giaHomeTalk{background:linear-gradient(135deg,#a46bff,#5f73e8);box-shadow:0 8px 24px #7856df66}
+.gia-home-actions .gia-home-type{background:#ffffff16;border:1px solid #c8b9ff88}
+.gia-home-hint{grid-area:hint;text-align:left;color:#d6d1f5;font-size:12px;line-height:1.5}
+.gia-shortcuts{border-color:#6c5aa5;background:rgba(13,20,46,.94)}
+.gia-shortcuts button{font-size:13px;min-height:42px}
+@media(max-width:620px){
+ .gia-home{
+  grid-template-columns:1fr!important;
+  grid-template-areas:"copy" "avatar" "actions" "hint"!important;
+  text-align:center!important;justify-items:center;gap:12px!important;
+  min-height:0;padding:23px 17px 20px!important;
+ }
+ .gia-home-copy h2{font-size:27px!important}
+ .gia-home-copy p{font-size:14px!important}
+ .gia-home .gia-avatar-frame{width:clamp(190px,58vw,230px)!important}
+ .gia-home-actions{justify-content:center;flex-wrap:wrap}
+ .gia-home-actions button{flex:1;min-width:135px}
+ .gia-home-hint{text-align:center}
+}
+@media(prefers-reduced-motion:reduce){.gia-home .gia-avatar-frame{animation:none!important}}
+
 </style>
 </head>
 <body>
