@@ -1,5 +1,5 @@
 const CACHE_NAME = "gia-shell-v7";
-const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
+const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./gia-avatar.webp"];
 
 self.addEventListener("install", event => {
   event.waitUntil(
