@@ -94,6 +94,21 @@ footer{text-align:center;color:#7799b9;padding:25px}
   <p id="siteStatus" class="auth-note" aria-live="polite">Dashboard akses awal siap digunakan.</p>
  </section>
 
+ <section class="card" id="knowledgeCenter">
+  <h3>🧠 Pusat Pengetahuan KAWAN AI</h3>
+  <p class="auth-note">Tempelkan hasil riset harian di sini. Pengetahuan menunggu pemeriksaanmu sebelum dipakai AI.</p>
+  <input id="knowledgeTitle" maxlength="240" placeholder="Judul pengetahuan">
+  <select id="knowledgeCategory" style="width:100%;padding:13px;border-radius:12px;background:#071a32;color:white;border:1px solid #3673a7;margin-bottom:10px">
+   <option value="elektronika">Elektronika</option><option value="AI">AI</option><option value="pengembangan aplikasi">Pengembangan aplikasi</option><option value="pengetahuan umum">Pengetahuan umum</option>
+  </select>
+  <textarea id="knowledgeContent" maxlength="12000" rows="5" placeholder="Ringkasan fakta dan penjelasan..." style="width:100%;padding:14px;border-radius:12px;border:1px solid #3673a7;background:#071a32;color:white;font:inherit;margin-bottom:10px"></textarea>
+  <input id="knowledgeSource" maxlength="160" placeholder="Nama sumber (misalnya dokumentasi resmi)">
+  <input id="knowledgeUrl" type="url" maxlength="2000" placeholder="Tautan sumber (https://...)">
+  <button type="button" onclick="submitKnowledge()">Simpan untuk diperiksa</button>
+  <button type="button" onclick="loadPendingKnowledge()" style="background:#344d6b;margin-left:6px">Muat daftar pemeriksaan</button>
+  <p id="knowledgeStatus" class="auth-note" aria-live="polite">Masukkan hasil riset untuk membuat usulan pengetahuan.</p>
+  <div id="pendingKnowledgeList"></div>
+ </section>
  <section class="card">
   <h3>🧠 Asisten AI</h3>
   <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
@@ -455,6 +470,57 @@ async function clearMemory(){
  }
  updateHistoryStatus("Memori percakapan akun ini sudah dibersihkan.");
  document.getElementById("reply").textContent="Memori percakapan akun KAWAN AI sudah dibersihkan.";
+}
+
+
+async function submitKnowledge(){
+ const status=document.getElementById("knowledgeStatus");
+ if(!currentSession?.user?.id){status.textContent="Silakan masuk terlebih dahulu.";return;}
+ const title=document.getElementById("knowledgeTitle").value.trim();
+ const content=document.getElementById("knowledgeContent").value.trim();
+ const category=document.getElementById("knowledgeCategory").value;
+ const source=document.getElementById("knowledgeSource").value.trim();
+ const sourceUrl=document.getElementById("knowledgeUrl").value.trim();
+ if(title.length<3 || content.length<20){status.textContent="Isi judul minimal 3 karakter dan ringkasan minimal 20 karakter.";return;}
+ if(sourceUrl && !/^https:\/\//i.test(sourceUrl)){status.textContent="Tautan sumber harus diawali https://";return;}
+ status.textContent="Menyimpan usulan pengetahuan...";
+ const {error}=await supabaseClient.from("kawan_knowledge").insert({user_id:currentSession.user.id,category,title,content,source_name:source||null,source_url:sourceUrl||null,status:"pending_review"});
+ if(error){status.textContent="Belum berhasil disimpan: "+error.message;return;}
+ ["knowledgeTitle","knowledgeContent","knowledgeSource","knowledgeUrl"].forEach(id=>document.getElementById(id).value="");
+ status.textContent="Usulan tersimpan. Periksa daftar di bawah.";
+ await loadPendingKnowledge();
+}
+async function loadPendingKnowledge(){
+ const status=document.getElementById("knowledgeStatus");
+ const list=document.getElementById("pendingKnowledgeList");
+ if(!currentSession?.user?.id){status.textContent="Silakan masuk terlebih dahulu.";return;}
+ status.textContent="Memuat usulan...";
+ const {data,error}=await supabaseClient.from("kawan_knowledge").select("id,category,title,content,source_name,source_url,learned_at").eq("status","pending_review").order("learned_at",{ascending:false}).limit(20);
+ if(error){status.textContent="Gagal memuat daftar: "+error.message;return;}
+ list.replaceChildren();
+ if(!data?.length){status.textContent="Tidak ada usulan yang menunggu pemeriksaan.";return;}
+ status.textContent=data.length+" usulan menunggu pemeriksaan.";
+ data.forEach(item=>{
+  const card=document.createElement("article");card.style.cssText="border:1px solid #3673a7;border-radius:12px;padding:12px;margin-top:10px";
+  const h=document.createElement("h4");h.textContent=item.title;h.style.margin="0 0 8px";
+  const cat=document.createElement("p");cat.textContent="Kategori: "+item.category;cat.className="auth-note";
+  const body=document.createElement("p");body.textContent=item.content;body.style.whiteSpace="pre-wrap";
+  card.append(h,cat,body);
+  if(item.source_name){const s=document.createElement("p");s.textContent="Sumber: "+item.source_name;s.className="auth-note";card.append(s);}
+  if(item.source_url){const a=document.createElement("a");a.href=item.source_url;a.target="_blank";a.rel="noopener noreferrer";a.textContent="Buka sumber";a.style.color="#55d9ff";card.append(a);}
+  const actions=document.createElement("div");actions.style.cssText="display:flex;gap:8px;margin-top:12px";
+  const yes=document.createElement("button");yes.textContent="Setujui";yes.style.background="#176b57";yes.onclick=()=>reviewKnowledge(item.id,"approved");
+  const no=document.createElement("button");no.textContent="Tolak";no.style.background="#8a4c4c";no.onclick=()=>reviewKnowledge(item.id,"rejected");
+  actions.append(yes,no);card.append(actions);list.append(card);
+ });
+}
+async function reviewKnowledge(id,statusValue){
+ const status=document.getElementById("knowledgeStatus");
+ if(!currentSession?.user?.id){status.textContent="Silakan masuk terlebih dahulu.";return;}
+ const {error}=await supabaseClient.from("kawan_knowledge").update({status:statusValue,reviewed_at:new Date().toISOString()}).eq("id",id).eq("status","pending_review");
+ if(error){status.textContent="Pembaruan gagal: "+error.message;return;}
+ status.textContent=statusValue==="approved"?"Pengetahuan disetujui dan dapat dipakai KAWAN AI.":"Usulan ditolak.";
+ await loadPendingKnowledge();
 }
 
 async function ask(){
