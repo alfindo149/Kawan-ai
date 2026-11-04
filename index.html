@@ -1467,10 +1467,10 @@ async function reviewKnowledge(id,statusValue){
 
 function detectGiaCreativeIntent(text){
  const value=String(text||"").toLowerCase();
- const action=/(buat|bikin|buatin|buatkan|hasilkan|ciptakan|generate|create|ubah|edit|animasi|animasikan)\\b/.test(value);
+ const action=/(buat|bikin|buatin|buatkan|hasilkan|ciptakan|generate|create|ubah|edit|animasi|animasikan)\b/.test(value);
  if(!action) return null;
- if(/\\b(video|animasi|reels|tiktok|shorts|film pendek|video pendek)\\b/.test(value)) return {mode:"video"};
- if(/\\b(foto|gambar|image|poster|ilustrasi|thumbnail|logo|wallpaper|konten visual)\\b/.test(value)) return {mode:"image"};
+ if(/\b(video|animasi|reels|tiktok|shorts|film pendek|video pendek)\b/.test(value)) return {mode:"video"};
+ if(/\b(foto|gambar|image|poster|ilustrasi|thumbnail|logo|wallpaper|konten visual)\b/.test(value)) return {mode:"image"};
  return null;
 }
 
