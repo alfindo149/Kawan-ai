@@ -69,14 +69,41 @@ button:hover{filter:brightness(1.08)}button:active{transform:scale(.98)}button:d
 footer{color:#64748b;font-size:12px;border-top:1px solid var(--line)}
 @media(max-width:560px){header{padding:12px 14px;gap:8px}header h1{font-size:17px}header p{display:none}main{padding:18px 12px 90px}.card{padding:17px;border-radius:17px}.site-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.voice-row button{min-width:calc(50% - 5px)}}
 
+
+/* Conversation history drawer */
+#historySidebar{position:fixed;z-index:40;left:0;top:0;bottom:0;width:min(310px,86vw);padding:18px;background:#0e141e;border-right:1px solid var(--line);transform:translateX(-105%);transition:transform .22s ease;overflow-y:auto;box-shadow:20px 0 50px rgba(0,0,0,.25)}
+#historySidebar.open{transform:translateX(0)}
+#sidebarScrim{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:39;display:none}
+#sidebarScrim.open{display:block}
+.sidebar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.sidebar-head strong{font-size:16px}.sidebar-head button{padding:7px 10px;background:#202a39}
+.new-chat-button{width:100%;text-align:left;background:#183d31;border:1px solid #28664d;margin-bottom:22px}
+#historySidebar h3{font-size:13px;color:#aebbd0;margin:0 0 6px}
+.sidebar-hint,.sidebar-foot{font-size:12px;color:#8291a6;line-height:1.5}
+.history-entry{display:block;width:100%;text-align:left;background:transparent;border:1px solid transparent;color:#e6edf5;padding:11px;border-radius:11px;margin:6px 0;font-weight:500;font-size:13px;line-height:1.45;white-space:normal;overflow-wrap:anywhere}
+.history-entry:hover{background:#192333;border-color:#344155}
+.history-entry small{display:block;color:#8494a9;margin-top:5px;font-size:11px}
+.history-empty{padding:12px;border:1px dashed #344155;border-radius:12px;color:#8494a9;font-size:13px;line-height:1.5}
+@media(min-width:900px){#historySidebar{width:300px}}
+
 </style>
 </head>
 <body>
 <header>
+ <button type="button" id="sidebarToggle" aria-label="Buka riwayat percakapan" onclick="toggleSidebar()" style="padding:9px 12px;background:#202a39;border:1px solid #344155">☰</button>
  <h1>✳ KAWAN AI</h1>
  <p>Asisten pribadi • ruang percakapan</p>
  <div class="status">● SISTEM SIAP</div>
 </header>
+<aside id="historySidebar" aria-label="Riwayat percakapan" aria-hidden="true">
+ <div class="sidebar-head"><strong>Ruang KAWAN AI</strong><button type="button" onclick="toggleSidebar()" aria-label="Tutup menu">✕</button></div>
+ <button type="button" class="new-chat-button" onclick="startNewChat()">＋ Chat baru</button>
+ <h3>Riwayat percakapan</h3>
+ <p class="sidebar-hint">Ketuk pertanyaan untuk melihat kembali jawaban terakhir.</p>
+ <div id="historyItems"></div>
+ <p class="sidebar-foot">Riwayat ini menyimpan konteks percakapan terakhir di akun/perangkat.</p>
+</aside>
+<div id="sidebarScrim" onclick="toggleSidebar()"></div>
 <main>
  <section class="card">
   <h2>Selamat datang kembali, Kawan.</h2>
@@ -193,6 +220,7 @@ async function refreshAuth(session){
     if(saveError) throw saveError;
    }
    saveHistory();
+   renderHistoryPanel();
    updateHistoryStatus("Memori akun tersinkron: "+chatHistory.length+" pesan.");
    if(typeof loadPendingKnowledge==="function") await loadPendingKnowledge();
   }catch(error){
@@ -375,6 +403,67 @@ function saveHistory(){
 function updateHistoryStatus(message){
  document.getElementById("historyStatus").textContent=message;
 }
+
+function toggleSidebar(){
+ const panel=document.getElementById("historySidebar");
+ const scrim=document.getElementById("sidebarScrim");
+ const opening=!panel.classList.contains("open");
+ panel.classList.toggle("open",opening);
+ scrim.classList.toggle("open",opening);
+ panel.setAttribute("aria-hidden",String(!opening));
+}
+function renderHistoryPanel(){
+ const list=document.getElementById("historyItems");
+ if(!list) return;
+ list.replaceChildren();
+ const turns=[];
+ for(let i=0;i<chatHistory.length;i++){
+  const item=chatHistory[i];
+  if(item.role==="user"){
+   const next=chatHistory[i+1];
+   turns.push({question:item.text,answer:next?.role==="model"?next.text:"Jawaban belum tersimpan."});
+  }
+ }
+ if(!turns.length){
+  const empty=document.createElement("div");
+  empty.className="history-empty";
+  empty.textContent="Belum ada percakapan. Mulai dengan mengirim pertanyaan kepada KAWAN AI.";
+  list.append(empty);return;
+ }
+ turns.slice().reverse().forEach((turn,index)=>{
+  const button=document.createElement("button");
+  button.type="button";button.className="history-entry";
+  const title=document.createElement("span");
+  title.textContent=turn.question.length>68?turn.question.slice(0,68)+"…":turn.question;
+  const meta=document.createElement("small");meta.textContent="Percakapan terbaru";
+  button.append(title,meta);
+  button.addEventListener("click",()=>{
+   document.getElementById("reply").textContent="Kamu: "+turn.question+"\n\nKAWAN AI: "+turn.answer;
+   document.getElementById("question").value=turn.question;
+   toggleSidebar();
+   document.getElementById("reply").scrollIntoView({behavior:"smooth",block:"center"});
+  });
+  list.append(button);
+ });
+}
+async function startNewChat(){
+ if(!confirm("Mulai chat baru? Konteks percakapan terakhir akan dikosongkan dari riwayat aktif.")) return;
+ chatHistory=[];
+ saveHistory();
+ if(currentSession?.user?.id){
+  const {error}=await supabaseClient.from("kawan_memories").upsert(
+   {user_id:currentSession.user.id,messages:[],updated_at:new Date().toISOString()},
+   {onConflict:"user_id"}
+  );
+  if(error){updateHistoryStatus("Chat baru dibuat di perangkat, tetapi sinkronisasi akun gagal: "+error.message);}
+  else{updateHistoryStatus("Chat baru dimulai. Riwayat aktif akun sudah dikosongkan.");}
+ }else{updateHistoryStatus("Chat baru dimulai di perangkat ini.");}
+ document.getElementById("reply").textContent="Halo, Kawan! Kita mulai percakapan baru. Ada yang ingin kamu tanyakan?";
+ document.getElementById("question").value="";
+ renderHistoryPanel();
+ toggleSidebar();
+}
+
 
 function startListeningAgain(){
  if((!autoConversation && !wakeWordMode) || !recognition || isListening || voiceProcessing) return;
@@ -584,6 +673,7 @@ async function ask(){
    chatHistory=chatHistory.slice(-12);
   }
   saveHistory();
+  renderHistoryPanel();
   updateHistoryStatus(data.memorySaved ? "Memori tersimpan aman di akun: "+chatHistory.length+" pesan." : "Jawaban diterima, tetapi penyimpanan online belum terkonfirmasi. Riwayat lokal: "+chatHistory.length+" pesan.");
   r.textContent=data.reply;
   speakReply(data.reply);
@@ -601,6 +691,7 @@ async function ask(){
  }
 }
 updateHistoryStatus("Memori akun siap. Riwayat lokal: "+chatHistory.length+" pesan.");
+renderHistoryPanel();
 
 document.getElementById("question").addEventListener("keydown",function(event){
  if(event.key==="Enter"){event.preventDefault();ask();}
