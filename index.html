@@ -1355,8 +1355,9 @@ function giaFileToBase64(file){
   reader.readAsDataURL(file);
  });
 }
-async function generateGiaCreative(){
- const prompt=document.getElementById("giaCreativePrompt").value.trim();
+async function generateGiaCreative(options={}){
+ if(options.mode) giaCreativeMode=options.mode;
+ const prompt=(options.prompt || document.getElementById("giaCreativePrompt").value).trim();
  const status=document.getElementById("giaCreativeStatus");
  const button=document.getElementById("giaCreativeGenerate");
  const file=document.getElementById("giaCreativeReference").files[0];
@@ -1396,9 +1397,18 @@ async function generateGiaCreative(){
   download.href=giaCreativeObjectUrl;
   document.getElementById("giaCreativeOutput").style.display="block";
   status.textContent="Berhasil! Hasil karya GIA siap dilihat dan disimpan ke HP.";
+  if(options.fromChat){
+   const reply=document.getElementById("reply");
+   reply.textContent=(data.mimeType.startsWith("image/")?"Foto":"Video")+" berhasil dibuat, kawan! Hasilnya sudah tampil di Studio Foto & Video. Tekan Simpan hasil ke HP untuk mengunduhnya.";
+   document.getElementById("giaCreativeStudio").scrollIntoView({behavior:"smooth",block:"start"});
+   return true;
+  }
+  return true;
  }catch(error){
   console.error("GIA Creative:",error);
   status.textContent="Pembuatan gagal: "+(error.message||"Periksa koneksi, kuota Gemini, dan konfigurasi API.");
+  if(options.fromChat) document.getElementById("reply").textContent="Maaf kawan, GIA belum berhasil membuat konten: "+(error.message||"Periksa koneksi dan kuota Gemini.") ;
+  return false;
  }finally{
   button.disabled=false;
   button.textContent=giaCreativeMode==="image"?"✨ Buat Foto dengan GIA":"🎬 Buat Video dengan GIA";
@@ -1455,11 +1465,46 @@ async function reviewKnowledge(id,statusValue){
  await loadPendingKnowledge();
 }
 
+function detectGiaCreativeIntent(text){
+ const value=String(text||"").toLowerCase();
+ const action=/(buat|bikin|buatin|buatkan|hasilkan|ciptakan|generate|create|ubah|edit|animasi|animasikan)\\b/.test(value);
+ if(!action) return null;
+ if(/\\b(video|animasi|reels|tiktok|shorts|film pendek|video pendek)\\b/.test(value)) return {mode:"video"};
+ if(/\\b(foto|gambar|image|poster|ilustrasi|thumbnail|logo|wallpaper|konten visual)\\b/.test(value)) return {mode:"image"};
+ return null;
+}
+
 async function ask(){
  const q=document.getElementById("question").value.trim();
  const r=document.getElementById("reply");
  const button=document.getElementById("send");
  if(!q){r.textContent="Silakan tulis pertanyaan dahulu.";return;}
+ const creativeIntent=detectGiaCreativeIntent(q);
+ if(creativeIntent){
+  button.disabled=true;
+  button.textContent=creativeIntent.mode==="image"?"GIA sedang membuat foto...":"GIA sedang membuat video...";
+  setGiaAvatarState("thinking");
+  r.textContent=creativeIntent.mode==="image"?"GIA sedang menyiapkan foto dari idemu...":"GIA sedang menyiapkan video dari idemu...";
+  document.getElementById("question").value="";
+  try{
+   const ok=await generateGiaCreative({prompt:q,mode:creativeIntent.mode,fromChat:true});
+   const chatReply=r.textContent;
+   if(ok){
+    chatHistory.push({role:"user",text:q},{role:"model",text:chatReply});
+    chatHistory=chatHistory.slice(-12);saveHistory();renderHistoryPanel();
+   }
+   if(!voiceEnabled) setGiaAvatarState("idle");
+   if(ok) speakReply(chatReply);
+  }catch(error){
+   r.textContent="Maaf kawan, fitur kreatif mengalami gangguan: "+(error.message||"Coba lagi.");
+   setGiaAvatarState("idle");
+  }finally{
+   button.disabled=false;button.textContent="Kirim pesan";
+   voiceProcessing=false;
+   if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,700);
+  }
+  return;
+ }
  const sentHistoryCount=chatHistory.length;
  updateHistoryStatus("Sedang mengirim riwayat: "+sentHistoryCount+" pesan.");
  button.disabled=true;
