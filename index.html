@@ -334,14 +334,14 @@ if (SpeechRecognitionAPI) {
  recognition.onend = () => {
   isListening=false;
   document.getElementById("micButton").textContent="🎙️ Mulai bicara";
-  if(wakeWordMode && !voiceProcessing && !(window.speechSynthesis && window.speechSynthesis.speaking)){
+  if((wakeWordMode || autoConversation) && !voiceProcessing && !(window.speechSynthesis && window.speechSynthesis.speaking)){
    setTimeout(startListeningAgain,700);
   }
  };
  recognition.onresult = (event) => {
   const spokenText = event.results[event.results.length-1][0].transcript.trim();
   if(wakeWordMode){
-   const found = /halo[\s,.-]*kawan/i.exec(spokenText);
+   const found = /halo[\s,.-]*gia/i.exec(spokenText);
    if(awaitingWakeCommand){
     awaitingWakeCommand=false;
     voiceProcessing=true;
@@ -376,6 +376,9 @@ if (SpeechRecognitionAPI) {
  recognition.onerror = (event) => {
   const messages = {"not-allowed":"Izin mikrofon ditolak. Izinkan mikrofon untuk situs ini.","service-not-allowed":"Layanan pengenalan suara tidak diizinkan oleh browser.","no-speech":"Suara belum terdengar. Coba bicara lebih dekat ke mikrofon.","network":"Pengenalan suara membutuhkan koneksi internet."};
   document.getElementById("voiceStatus").textContent = messages[event.error] || ("Mikrofon bermasalah: " + event.error);
+  if(event.error==="no-speech" && (wakeWordMode || autoConversation) && !voiceProcessing){
+   setTimeout(startListeningAgain,900);
+  }
   if(event.error==="not-allowed" || event.error==="service-not-allowed"){
    wakeWordMode=false;
    autoConversation=false;
@@ -535,20 +538,29 @@ function toggleAutoConversation(){
  autoConversation = !autoConversation;
  if(autoConversation && wakeWordMode){
   wakeWordMode=false;
+  awaitingWakeCommand=false;
   const wakeButton=document.getElementById("wakeButton");
   wakeButton.textContent="🗣️ Halo GIA: mati";
   wakeButton.style.background="#344d6b";
+ }
+ if(autoConversation){
+  voiceEnabled=true;
+  document.getElementById("voiceButton").textContent="🔊 Suara aktif";
  }
  const button=document.getElementById("autoButton");
  button.textContent=autoConversation ? "🔁 Mode otomatis aktif" : "🔁 Mode otomatis mati";
  button.style.background=autoConversation ? "#176b57" : "#344d6b";
  document.getElementById("voiceStatus").textContent=autoConversation
-  ? "Mode otomatis aktif. Setelah jawaban selesai dibacakan, mikrofon akan aktif lagi."
-  : "Mode otomatis dimatikan. Gunakan tombol mikrofon untuk berbicara.";
- if(autoConversation && !isListening && !("speechSynthesis" in window)){
-  document.getElementById("voiceStatus").textContent="Browser tidak mendukung suara otomatis. Gunakan tombol mikrofon secara manual.";
+  ? "Mode percakapan aktif. GIA mendengarkan, menjawab dengan suara, lalu mendengarkan lagi. Biarkan halaman tetap terbuka."
+  : "Mode percakapan otomatis dimatikan.";
+ if(autoConversation && !recognition){
+  autoConversation=false;
+  button.textContent="🔁 Mode otomatis mati";
+  button.style.background="#344d6b";
+  document.getElementById("voiceStatus").textContent="Browser tidak mendukung pengenalan suara. Gunakan Google Chrome.";
+  return;
  }
- if(autoConversation && recognition && !isListening) startListeningAgain();
+ if(autoConversation && !isListening) startListeningAgain();
 }
 
 function toggleWakeWord(){
