@@ -24,14 +24,5 @@
       "purpose": "any"
     }
   ],
-  "screenshots": [
-    {
-      "src": "./screenshot-home.png",
-      "sizes": "716x1536",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Halaman utama KAWAN AI"
-    }
-  ],
   "prefer_related_applications": false
 }
