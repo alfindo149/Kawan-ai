@@ -236,12 +236,12 @@ if (SpeechRecognitionAPI) {
  recognition.onresult = (event) => {
   const spokenText = event.results[event.results.length-1][0].transcript.trim();
   if(wakeWordMode){
-   const found = /halo[\\s,.-]*kawan/i.exec(spokenText);
+   const found = /halo[\s,.-]*kawan/i.exec(spokenText);
    if(!found){
     document.getElementById("voiceStatus").textContent = "Mode siaga: ucapkan “Halo Kawan” untuk memanggil AI.";
     return;
    }
-   const command = spokenText.slice(found.index + found[0].length).replace(/^[\\s,.:;!?-]+/,"").trim();
+   const command = spokenText.slice(found.index + found[0].length).replace(/^[\s,.:;!?-]+/,"").trim();
    voiceProcessing=true;
    if(!command){
     document.getElementById("voiceStatus").textContent = "KAWAN AI aktif. Silakan sampaikan pertanyaan.";
