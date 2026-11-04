@@ -39,18 +39,48 @@ footer{text-align:center;color:#7799b9;padding:25px}
 .site-link:focus,.site-link:hover{outline:2px solid #55d9ff}
 @media(min-width:600px){.site-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
+
+/* KAWAN AI modern ChatGPT-inspired interface */
+:root{color-scheme:dark;--bg:#080b12;--panel:#111722;--panel2:#171f2c;--line:#283345;--muted:#9aa8ba;--accent:#19c37d;--text:#edf2f7}
+html{background:var(--bg);scroll-behavior:smooth}
+body{min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{position:sticky;top:0;z-index:20;padding:13px max(18px,calc((100vw - 900px)/2));background:rgba(8,11,18,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:13px}
+header h1{font-size:19px;letter-spacing:-.5px;color:#f4f7fb;white-space:nowrap}
+header p{margin:0;color:var(--muted);font-size:13px;flex:1}
+header .status{font-size:11px;border:1px solid #24533f;color:#6ee7a8;padding:6px 10px;border-radius:99px;white-space:nowrap}
+main{max-width:850px;padding:28px 18px 110px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.card h2,.card h3{color:var(--text);letter-spacing:-.35px}
+.card p{line-height:1.65}
+input,textarea,select{width:100%;padding:14px 15px;border-radius:13px;border:1px solid #344155;background:#0b111b;color:var(--text);font:inherit;font-size:15px;margin:0 0 10px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:#19c37d;box-shadow:0 0 0 3px rgba(25,195,125,.13)}
+button{background:#19a66d;color:white;border:0;padding:12px 17px;border-radius:13px;font:inherit;font-weight:650;cursor:pointer;transition:transform .15s,filter .15s}
+button:hover{filter:brightness(1.08)}button:active{transform:scale(.98)}button:disabled{opacity:.55}
+.auth-note,.voice-status{color:var(--muted);font-size:13px;line-height:1.55}
+.site-link{background:var(--panel2);border-color:var(--line);border-radius:14px;transition:border-color .15s}
+.site-link:hover{outline:0;border-color:#19c37d}
+#reply{background:#0b111b;border:1px solid var(--line);border-radius:16px;padding:18px;min-height:88px;margin-top:18px;font-size:15px;line-height:1.75}
+#question{font-size:16px;padding:16px;border-radius:16px;background:#0b111b}
+#send{min-width:125px}
+.voice-row{gap:8px}.voice-row button{font-size:13px;padding:10px 12px}
+#appArea>.card:first-child{background:transparent;border:0;box-shadow:none;padding:8px 4px 18px}
+#appArea>.card:first-child h2{font-size:25px}
+#knowledgeCenter textarea{resize:vertical}
+footer{color:#64748b;font-size:12px;border-top:1px solid var(--line)}
+@media(max-width:560px){header{padding:12px 14px;gap:8px}header h1{font-size:17px}header p{display:none}main{padding:18px 12px 90px}.card{padding:17px;border-radius:17px}.site-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.voice-row button{min-width:calc(50% - 5px)}}
+
 </style>
 </head>
 <body>
 <header>
- <h1>🤖 KAWAN AI</h1>
- <p>Teman pintar dalam genggamanmu</p>
+ <h1>✳ KAWAN AI</h1>
+ <p>Asisten pribadi • ruang percakapan</p>
  <div class="status">● SISTEM SIAP</div>
 </header>
 <main>
  <section class="card">
-  <h2>Selamat datang, Kawan!</h2>
-  <p>Apa yang ingin kita pelajari hari ini?</p>
+  <h2>Selamat datang kembali, Kawan.</h2>
+  <p style="color:var(--muted)">Apa yang bisa kita kerjakan bersama hari ini?</p>
  </section>
  <section class="card" id="authCard">
   <h3>🔐 Akun KAWAN AI</h3>
