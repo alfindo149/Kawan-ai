@@ -1,4 +1,4 @@
-const CACHE_NAME = "gia-shell-v19";
+const CACHE_NAME = "gia-shell-v20";
 const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./gia-avatar-real.jpg", "./gia-avatar.svg"];
 
 self.addEventListener("install", event => {
