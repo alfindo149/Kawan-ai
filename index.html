@@ -102,7 +102,7 @@ footer{text-align:center;color:#7799b9;padding:25px}
   <button id="send" onclick="ask()">Kirim pesan</button>
   <button type="button" onclick="signOut()" style="margin-left:8px;background:#8a4c4c">Keluar</button>
   <button type="button" onclick="clearMemory()" style="margin-left:8px;background:#344d6b">Hapus memori</button>
-  <p style="font-size:12px;color:#a9c6df">Memori menyimpan hingga 6 pasang pesan di browser/perangkat ini. Tidak tersinkron ke perangkat lain.</p>
+  <p style="font-size:12px;color:#a9c6df">Memori percakapan tersimpan di akun KAWAN AI melalui Supabase dan dapat digunakan kembali saat masuk dari perangkat lain.</p>
   <p id="historyStatus" style="font-size:12px;color:#62e8b5" aria-live="polite">Riwayat tersimpan di perangkat: 0 pesan.</p>
   <p id="reply" aria-live="polite">KAWAN AI siap menyambutmu!</p>
  </section>
@@ -137,6 +137,25 @@ async function refreshAuth(session){
  document.getElementById("appArea").style.display = session ? "block" : "none";
  document.getElementById("authCard").style.display = session ? "none" : "block";
  document.getElementById("authStatus").textContent = session ? "Berhasil masuk." : "Silakan masuk atau buat akun baru.";
+ if(session){
+  try{
+   const {data,error}=await supabaseClient.from("kawan_memories").select("messages").maybeSingle();
+   if(error) throw error;
+   if(Array.isArray(data?.messages)){
+    chatHistory=data.messages.filter(item=>item && ["user","model"].includes(item.role) && typeof item.text==="string").slice(-12);
+   }else if(chatHistory.length){
+    const {error:saveError}=await supabaseClient.from("kawan_memories").upsert({user_id:session.user.id,messages:chatHistory,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+    if(saveError) throw saveError;
+   }
+   saveHistory();
+   updateHistoryStatus("Memori akun tersinkron: "+chatHistory.length+" pesan.");
+  }catch(error){
+   console.warn("Sinkronisasi memori gagal:",error);
+   updateHistoryStatus("Memori online belum tersinkron. Periksa koneksi atau masuk kembali.");
+  }
+ }else{
+  updateHistoryStatus("Masuk untuk membuka memori akun KAWAN AI.");
+ }
 }
 async function signUp(){
  const email=document.getElementById("authEmail").value.trim();
@@ -423,11 +442,19 @@ function toggleListening(){
  catch(error){ document.getElementById("voiceStatus").textContent = "Mikrofon sedang digunakan. Tunggu sebentar lalu coba lagi."; }
 }
 
-function clearMemory(){
+async function clearMemory(){
  chatHistory=[];
  try{localStorage.removeItem(MEMORY_KEY);}catch(error){}
- updateHistoryStatus("Riwayat tersimpan di perangkat: 0 pesan.");
- document.getElementById("reply").textContent="Memori percakapan di perangkat ini sudah dibersihkan.";
+ updateHistoryStatus("Sedang menghapus memori akun...");
+ if(currentSession?.user?.id){
+  const {error}=await supabaseClient.from("kawan_memories").delete().eq("user_id",currentSession.user.id);
+  if(error){
+   updateHistoryStatus("Memori lokal terhapus, tetapi memori online gagal dihapus: "+error.message);
+   return;
+  }
+ }
+ updateHistoryStatus("Memori percakapan akun ini sudah dibersihkan.");
+ document.getElementById("reply").textContent="Memori percakapan akun KAWAN AI sudah dibersihkan.";
 }
 
 async function ask(){
@@ -453,10 +480,14 @@ async function ask(){
   if(typeof data.reply!=="string" || !data.reply.trim()){
    throw new Error("Jawaban dari AI kosong. Coba kirim ulang.");
   }
-  chatHistory.push({role:"user",text:q},{role:"model",text:data.reply});
-  chatHistory=chatHistory.slice(-12);
+  if(Array.isArray(data.history)){
+   chatHistory=data.history.filter(item=>item && ["user","model"].includes(item.role) && typeof item.text==="string").slice(-12);
+  }else{
+   chatHistory.push({role:"user",text:q},{role:"model",text:data.reply});
+   chatHistory=chatHistory.slice(-12);
+  }
   saveHistory();
-  updateHistoryStatus("Riwayat terkirim pada permintaan tadi: "+sentHistoryCount+" pesan. Tersimpan sekarang: "+chatHistory.length+" pesan.");
+  updateHistoryStatus(data.memorySaved ? "Memori tersimpan aman di akun: "+chatHistory.length+" pesan." : "Jawaban diterima, tetapi penyimpanan online belum terkonfirmasi. Riwayat lokal: "+chatHistory.length+" pesan.");
   r.textContent=data.reply;
   speakReply(data.reply);
   document.getElementById("voiceStatus").textContent = voiceEnabled ? "KAWAN AI sedang membacakan jawaban." : "Jawaban diterima. Suara mati; mikrofon akan aktif kembali jika mode siaga/otomatis digunakan.";
@@ -472,7 +503,7 @@ async function ask(){
   button.textContent="Kirim pesan";
  }
 }
-updateHistoryStatus("Riwayat tersimpan di perangkat: "+chatHistory.length+" pesan. Belum ada pengiriman baru.");
+updateHistoryStatus("Memori akun siap. Riwayat lokal: "+chatHistory.length+" pesan.");
 
 document.getElementById("question").addEventListener("keydown",function(event){
  if(event.key==="Enter"){event.preventDefault();ask();}
