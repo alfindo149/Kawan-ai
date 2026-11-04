@@ -483,6 +483,125 @@ main{max-width:920px;padding-top:20px}
 }
 @media(prefers-reduced-motion:reduce){.gia-online i,.gia-status-dot{box-shadow:none}}
 
+
+/* GIA complete home redesign: one consistent purple-blue visual system */
+:root{--gia-ink:#f7f4ff;--gia-muted:#c4c3e4;--gia-violet:#a98aff;--gia-blue:#72a7ff}
+html,body{min-height:100%;background:#080b1b}
+body{
+ color:var(--gia-ink);
+ background:
+  radial-gradient(ellipse at 50% -12%,rgba(104,91,220,.32),transparent 48%),
+  radial-gradient(ellipse at 100% 45%,rgba(111,69,191,.16),transparent 38%),
+  linear-gradient(180deg,#0b1025 0%,#080b18 58%,#090e20 100%);
+}
+header{
+ min-height:62px;padding:10px max(14px,calc((100vw - 980px)/2));
+ background:rgba(9,13,31,.88);border-bottom:1px solid #65559c66;
+ backdrop-filter:blur(18px);box-shadow:0 8px 30px #03061455
+}
+header h1{font-size:20px;color:#eee7ff;letter-spacing:.2px}
+header p{color:#b9b9df}
+header #sidebarToggle{border-radius:12px!important;background:#ffffff0d!important;border-color:#ffffff20!important}
+header .status{background:#15382f;border-color:#397b68;color:#9af0ce}
+main{width:min(100% - 28px,900px);max-width:900px;padding:20px 0 90px}
+main>section.card:first-child{display:none}
+#appArea{width:100%}
+.card{
+ background:linear-gradient(145deg,rgba(22,29,59,.96),rgba(13,20,42,.97));
+ border:1px solid rgba(157,143,230,.25);border-radius:24px;
+ box-shadow:0 18px 48px rgba(0,0,0,.24);padding:22px
+}
+.card h2,.card h3{color:#f7f2ff}
+.auth-note,.voice-status{color:#b9c3e3}
+#authCard{max-width:520px;margin:8vh auto;padding:26px;border-color:#8874d966}
+#authCard h3{font-size:23px}
+#authCard input{min-height:50px}
+#authCard .auth-actions button{min-height:48px}
+.gia-home{
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:center!important;text-align:center!important;gap:15px!important;
+ min-height:0!important;padding:30px 24px 25px!important;margin:0 0 16px!important;
+ border-radius:30px!important;overflow:hidden;
+ background:
+  radial-gradient(ellipse at 50% 45%,rgba(173,139,255,.32),transparent 42%),
+  radial-gradient(ellipse at 50% 0%,rgba(95,151,255,.28),transparent 55%),
+  linear-gradient(150deg,#1b2b60 0%,#30215c 55%,#102746 100%)!important;
+ border:1px solid rgba(199,177,255,.62)!important;
+ box-shadow:0 24px 65px rgba(53,34,127,.38),inset 0 1px 0 #ffffff25!important
+}
+.gia-home-avatar{order:0!important;justify-self:auto!important;gap:10px!important}
+.gia-home .gia-avatar-frame{
+ width:clamp(190px,34vw,260px)!important;max-width:none!important;aspect-ratio:1!important;
+ border-radius:50%!important;padding:6px!important;
+ border:2px solid #e4d6ff!important;
+ background:linear-gradient(145deg,#e4d1ff,#8c85ff 48%,#6edcff)!important;
+ box-shadow:0 0 0 10px #c5aaff18,0 0 58px #a783ff88,0 20px 45px #02081799!important
+}
+.gia-home .gia-avatar-frame img{width:100%;height:100%;object-fit:cover;object-position:center 35%;border-radius:50%}
+.gia-home .gia-avatar-frame:after{bottom:12px;right:12px;background:#24134de8;padding:6px 12px;font-size:12px}
+.gia-home-copy{order:1!important;max-width:600px!important}
+.gia-home-copy .gia-eyebrow{font-size:10px;letter-spacing:2.4px;color:#e3d9ff;background:#ffffff10;border-color:#d7c7ff77}
+.gia-home-copy h2{margin:9px 0 8px!important;font-size:clamp(28px,5vw,40px)!important;line-height:1.12!important;color:#fff!important}
+.gia-home-copy p{font-size:15px!important;line-height:1.65!important;color:#e4e5ff!important}
+.gia-home .gia-avatar-state{font-size:12px;color:#eee5ff;font-weight:700}
+.gia-home-actions{order:2!important;justify-content:center!important;max-width:470px!important;gap:10px!important}
+.gia-home-actions button{min-height:50px!important;border-radius:16px!important;padding:13px 20px!important;font-size:14px!important}
+.gia-home-actions #giaHomeTalk{flex:1 1 230px;background:linear-gradient(135deg,#b07bff,#657bf0)!important;box-shadow:0 9px 28px #8061e877!important}
+.gia-home-actions .gia-home-type{flex:1 1 150px;background:#ffffff14!important;border:1px solid #d6c8ff77!important}
+.gia-home-hint{order:3!important;text-align:center!important;color:#d2d5f5!important}
+.gia-shortcuts{
+ position:sticky;top:66px;z-index:15;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:9px!important;padding:9px!important;margin:0 0 16px!important;
+ border:1px solid #655a9c!important;border-radius:19px!important;
+ background:rgba(13,18,42,.92)!important;backdrop-filter:blur(16px);
+ box-shadow:0 10px 28px #0005
+}
+.gia-shortcuts button{
+ min-height:46px!important;padding:10px 8px!important;border-radius:13px!important;
+ background:linear-gradient(145deg,#29315d,#202747)!important;
+ border:1px solid #ffffff19!important;font-size:13px!important
+}
+.gia-chat-card{border-color:#8c79d866!important;background:linear-gradient(145deg,#171e3c,#10172e)!important}
+.gia-chat-heading h3{font-size:21px!important}
+.gia-composer{background:#090f24!important;border-color:#7668ad!important;border-radius:18px!important}
+.gia-composer #question{color:#fff!important}
+.gia-composer #send{background:linear-gradient(135deg,#a276ff,#6278e9)!important}
+.gia-voice-panel{background:linear-gradient(135deg,#202b54,#1b1d42)!important;border-color:#5f5b91!important}
+.gia-voice-panel #micButton{background:linear-gradient(135deg,#a276ff,#6278e9)!important}
+.gia-voice-panel #voiceButton{background:#ffffff12!important}
+#reply{background:linear-gradient(145deg,#0b142c,#151d3a)!important;border-color:#4b5685!important;color:#f5f2ff}
+#knowledgeCenter,#universalDashboard{scroll-margin-top:125px}
+#knowledgeCenter h3,#universalDashboard h2{color:#e8ddff}
+#knowledgeCenter>div[style*="background:#0b111b"]{background:linear-gradient(145deg,#111c3b,#0c1530)!important;border-color:#505a8a!important}
+#knowledgeCenter input,#knowledgeCenter textarea,#knowledgeCenter select,#universalDashboard input{background:#0a1229!important;border-color:#43527d!important;color:#fff!important}
+#giaLearningButton,#researchButton{min-height:46px}
+#universalDashboard .site-link{min-height:82px;background:linear-gradient(145deg,#202c50,#141f3a)!important;border-color:#45547d!important;color:#f4efff!important}
+#universalDashboard .site-link small{color:#b8c4e3}
+#pendingKnowledgeList article{background:#111b36;border-color:#53618e!important}
+#historySidebar{background:#0c1430;border-right-color:#514a81}
+footer{border-color:#ffffff16;color:#8e9abb}
+@media(max-width:600px){
+ main{width:calc(100% - 20px);padding:13px 0 76px}
+ .gia-home{padding:23px 15px 20px!important;border-radius:24px!important;gap:12px!important}
+ .gia-home .gia-avatar-frame{width:clamp(178px,57vw,220px)!important}
+ .gia-home-copy h2{font-size:28px!important}
+ .gia-home-copy p{font-size:14px!important}
+ .gia-home-actions{width:100%}
+ .gia-home-actions button{min-width:0!important;flex:1 1 100%!important}
+ .gia-shortcuts{top:58px;gap:6px!important;padding:7px!important}
+ .gia-shortcuts button{font-size:11px!important;min-height:43px!important;padding:8px 3px!important}
+ .card{padding:16px!important;border-radius:19px!important;margin-bottom:13px!important}
+ .gia-chat-heading h3{font-size:18px!important}
+ .gia-voice-panel .voice-row{flex-direction:column}
+ .gia-voice-panel .voice-row button{width:100%;min-height:44px}
+ .gia-chat-tools>div{width:100%}
+ .gia-chat-tools button{flex:1}
+ .site-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .gia-home .gia-avatar-frame,.gia-home.gia-listening .gia-avatar-frame,.gia-home.gia-thinking .gia-avatar-frame,.gia-home.gia-speaking .gia-avatar-frame{animation:none!important}
+}
+
 </style>
 </head>
 <body>
