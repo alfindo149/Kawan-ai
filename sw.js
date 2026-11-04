@@ -1,5 +1,5 @@
-const CACHE_NAME = "gia-shell-v14";
-const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./gia-avatar.svg"];
+const CACHE_NAME = "gia-shell-v15";
+const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./gia-avatar-real.jpg"];
 
 self.addEventListener("install", event => {
   event.waitUntil(
@@ -29,7 +29,7 @@ self.addEventListener("fetch", event => {
     url.pathname === appBase.pathname + "index.html" ||
     url.pathname === appBase.pathname + "manifest.webmanifest" ||
     url.pathname === appBase.pathname + "icon.svg" ||
-    url.pathname === appBase.pathname + "gia-avatar.svg";
+    url.pathname === appBase.pathname + "gia-avatar-real.jpg";
   if (!isAppShell && request.mode !== "navigate") return;
 
   event.respondWith(
