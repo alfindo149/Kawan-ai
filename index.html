@@ -441,6 +441,48 @@ main{max-width:920px;padding-top:20px}
  .gia-home.gia-listening .gia-avatar-frame,.gia-home.gia-thinking .gia-avatar-frame,.gia-home.gia-speaking .gia-avatar-frame,.gia-home.gia-speaking .gia-equalizer i{animation:none!important}
 }
 
+
+/* GIA conversation studio v17 */
+.gia-chat-card{position:relative;overflow:hidden}
+.gia-chat-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.gia-chat-heading h3{margin:4px 0 0;font-size:21px}
+.gia-chat-kicker{font-size:10px;letter-spacing:2px;color:#b9a8ff;font-weight:800}
+.gia-online{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid #3d806d;border-radius:30px;background:#16392f;color:#9bf0ce;font-size:11px}
+.gia-online i,.gia-status-dot{width:7px;height:7px;border-radius:50%;background:#69e5b4;box-shadow:0 0 9px #69e5b4;display:inline-block}
+.gia-composer{display:flex;align-items:center;gap:9px;padding:7px;border:1px solid #59638f;border-radius:18px;background:#0b1227;box-shadow:inset 0 1px 10px #0003}
+.gia-composer #question{flex:1;min-width:0;margin:0;border:0!important;box-shadow:none!important;background:transparent;padding:12px 10px}
+.gia-composer #send{flex:0 0 48px;width:48px;min-width:48px;height:46px;margin:0;border-radius:14px;font-size:22px;padding:0}
+.gia-voice-panel{margin-top:15px;padding:14px;border:1px solid #3c4770;border-radius:17px;background:linear-gradient(135deg,#18264a,#171b39)}
+.gia-voice-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.gia-voice-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:#a58aff22;font-size:19px}
+.gia-voice-top strong,.gia-voice-top small{display:block}
+.gia-voice-top strong{font-size:13px;color:#f4efff}
+.gia-voice-top small{margin-top:3px;font-size:11px;color:#b7c1e0}
+.gia-voice-panel .voice-row{margin:0;gap:8px}
+.gia-voice-panel .voice-row button{flex:1;min-width:0}
+.gia-voice-panel #micButton{background:linear-gradient(135deg,#8966ec,#5e70df)}
+.gia-voice-panel #voiceButton{background:#ffffff12;border:1px solid #a99be955}
+.gia-voice-panel .voice-status{display:flex;align-items:center;gap:8px;margin:10px 0 0;padding-top:10px;border-top:1px solid #ffffff16;min-height:22px}
+.gia-voice-panel .voice-status .gia-status-dot{flex:0 0 7px;background:#9a8cff;box-shadow:0 0 8px #9a8cff}
+.gia-chat-tools{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:15px}
+.gia-chat-tools>span{font-size:11px;color:#9eacd0}
+.gia-chat-tools>div{display:flex;gap:7px}
+.gia-chat-tools button{padding:7px 10px;font-size:11px;background:#263653;box-shadow:none}
+.gia-chat-tools button:last-child{background:#34405e}
+.gia-memory-note{font-size:11px!important;color:#8292b6;margin:8px 0}
+#reply{min-height:105px;margin-top:12px;padding:17px;border-radius:17px;background:linear-gradient(145deg,#0b142b,#151d38);border:1px solid #3e4d78;white-space:pre-wrap;line-height:1.75;overflow-wrap:anywhere}
+#giaChat:has(.gia-home){} 
+@media(max-width:560px){
+ .gia-chat-heading h3{font-size:19px}
+ .gia-voice-panel{padding:11px}
+ .gia-voice-panel .voice-row{flex-direction:column}
+ .gia-voice-panel .voice-row button{width:100%;min-height:42px}
+ .gia-chat-tools{align-items:flex-start}
+ .gia-chat-tools>div{width:100%}
+ .gia-chat-tools button{flex:1}
+}
+@media(prefers-reduced-motion:reduce){.gia-online i,.gia-status-dot{box-shadow:none}}
+
 </style>
 </head>
 <body>
@@ -508,15 +550,18 @@ main{max-width:920px;padding-top:20px}
  </nav>
 
  <section class="card gia-chat-card" id="giaChat">
-  <h3>🧠 Asisten AI</h3>
-  <input id="question" placeholder="Tulis pertanyaanmu..." maxlength="4000" autocomplete="off">
-  <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai ngobrol dengan GIA</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button><button type="button" id="autoButton" onclick="toggleAutoConversation()" style="display:none">🔁 Mode otomatis mati</button><button type="button" id="wakeButton" onclick="toggleWakeWord()" style="display:none">🗣️ Halo GIA: mati</button></div>
-  <p id="voiceStatus" class="voice-status" aria-live="polite">Tekan “Mulai bicara”, izinkan mikrofon, lalu ucapkan pertanyaanmu.</p>
-  <button id="send" onclick="ask()">Kirim pesan</button>
-  <button type="button" onclick="signOut()" style="margin-left:8px;background:#8a4c4c">Keluar</button>
-  <button type="button" onclick="clearMemory()" style="margin-left:8px;background:#344d6b">Hapus memori</button>
-  <p style="font-size:12px;color:#a9c6df">Memori percakapan tersimpan di akun GIA melalui Supabase dan dapat digunakan kembali saat masuk dari perangkat lain.</p>
-  <p id="historyStatus" style="font-size:12px;color:#62e8b5" aria-live="polite">Riwayat tersimpan di perangkat: 0 pesan.</p>
+  <div class="gia-chat-heading"><div><span class="gia-chat-kicker">RUANG PERCAKAPAN</span><h3>💬 Ngobrol dengan GIA</h3></div><span class="gia-online"><i></i> Siap</span></div>
+  <div class="gia-composer">
+   <input id="question" placeholder="Tulis pesan untuk GIA..." maxlength="4000" autocomplete="off" aria-label="Pesan untuk GIA">
+   <button id="send" onclick="ask()" aria-label="Kirim pesan">➤</button>
+  </div>
+  <div class="gia-voice-panel">
+   <div class="gia-voice-top"><span class="gia-voice-icon">🎙️</span><div><strong>Mode percakapan suara</strong><small>Berbicara langsung dengan GIA</small></div></div>
+   <div class="voice-row"><button type="button" id="micButton" onclick="toggleListening()">🎙️ Mulai ngobrol dengan GIA</button><button type="button" id="voiceButton" onclick="toggleVoice()">🔊 Suara aktif</button><button type="button" id="autoButton" onclick="toggleAutoConversation()" style="display:none">🔁 Mode otomatis mati</button><button type="button" id="wakeButton" onclick="toggleWakeWord()" style="display:none">🗣️ Halo GIA: mati</button></div>
+   <p id="voiceStatus" class="voice-status" aria-live="polite"><span class="gia-status-dot"></span> Tekan “Mulai bicara”, izinkan mikrofon, lalu ucapkan pertanyaanmu.</p>
+  </div>
+  <div class="gia-chat-tools"><span id="historyStatus" aria-live="polite">Riwayat tersimpan di perangkat: 0 pesan.</span><div><button type="button" onclick="signOut()">Keluar</button><button type="button" onclick="clearMemory()">Hapus memori</button></div></div>
+  <p class="gia-memory-note">Memori percakapan tersimpan di akun GIA melalui Supabase dan dapat digunakan kembali saat masuk dari perangkat lain.</p>
   <p id="reply" aria-live="polite">GIA siap menyambutmu!</p>
  </section>
 
