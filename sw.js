@@ -1,4 +1,4 @@
-const CACHE_NAME = "gia-shell-v8";
+const CACHE_NAME = "gia-shell-v9";
 const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./gia-avatar.svg"];
 
 self.addEventListener("install", event => {
