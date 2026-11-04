@@ -1,4 +1,4 @@
-const CACHE_NAME = "gia-shell-v13";
+const CACHE_NAME = "gia-shell-v14";
 const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./gia-avatar.svg"];
 
 self.addEventListener("install", event => {
@@ -28,7 +28,8 @@ self.addEventListener("fetch", event => {
   const isAppShell = url.pathname === appBase.pathname ||
     url.pathname === appBase.pathname + "index.html" ||
     url.pathname === appBase.pathname + "manifest.webmanifest" ||
-    url.pathname === appBase.pathname + "icon.svg";
+    url.pathname === appBase.pathname + "icon.svg" ||
+    url.pathname === appBase.pathname + "gia-avatar.svg";
   if (!isAppShell && request.mode !== "navigate") return;
 
   event.respondWith(
