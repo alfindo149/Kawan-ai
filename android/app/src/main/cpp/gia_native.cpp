@@ -33,7 +33,6 @@ Java_id_gia_assistant_LocalInference_nativeLoadModel(JNIEnv * env, jclass, jstri
     }
 
     llama_model_params model_params = llama_model_default_params();
-    model_params.use_mmap = true;
     g_model = llama_model_load_from_file(path, model_params);
     env->ReleaseStringUTFChars(modelPath, path);
     if (g_model == nullptr) {
