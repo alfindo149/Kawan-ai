@@ -11,6 +11,6 @@ public final class LocalInference {
 
     private LocalInference() {}
 
-    public static native String nativeLoadModel(String absoluteModelPath);
+    public static native String nativeLoadModel(String absoluteModelPath);\n    public static native String nativeGenerate(String prompt, int maxTokens);
     public static native void nativeUnloadModel();
 }
