@@ -23,7 +23,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
     private static final int AUDIO_PERMISSION_REQUEST = 41;
     private static final String APP_URL = "https://alfindo149.github.io/Kawan-ai/";
-    private WebView webView;
+    private WebView webView;\n    private GiaLocalAiBridge localAiBridge;
     private PermissionRequest pendingRequest;
     private LinearLayout errorPanel;
 
@@ -94,7 +94,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        webView.loadUrl(APP_URL);
+        localAiBridge = new GiaLocalAiBridge(this, webView);\n        webView.addJavascriptInterface(localAiBridge, "GiaLocalAI");\n        webView.loadUrl(APP_URL);
     }
 
     private void showLoadError(String message) {
