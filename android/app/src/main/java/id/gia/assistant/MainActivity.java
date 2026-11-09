@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private static final int AUDIO_PERMISSION_REQUEST = 41;
-    private static final String APP_URL = "https://alfindo149.github.io/Kawan-ai/";
+    private static final String APP_URL = "https://alfindo149.github.io/Kawan-ai/?appVersion=1.0.2";
     private WebView webView;
     private PermissionRequest pendingRequest;
     private LinearLayout errorPanel;
@@ -30,7 +30,25 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        enableImmersiveFullscreen();
         showWebView();
+    }
+
+    private void enableImmersiveFullscreen() {
+        getWindow().getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) enableImmersiveFullscreen();
     }
 
     private void showWebView() {
