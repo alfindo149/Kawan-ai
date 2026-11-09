@@ -651,6 +651,65 @@ footer{border-color:#ffffff16;color:#8e9abb}
  .gia-home{min-height:420px}
 }
 
+
+
+/* GIA immersive fullscreen v18 — fokus beranda dan status interaksi */
+.gia-home{
+ min-height:clamp(430px,calc(100svh - 170px),760px)!important;
+ justify-content:center!important;
+ position:relative;
+ isolation:isolate;
+}
+.gia-home:before{
+ content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 54%,rgba(174,143,255,.16),transparent 48%);
+}
+.gia-home .gia-home-copy p{max-width:560px}
+.gia-home .gia-avatar-frame{transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
+.gia-home.gia-speaking .gia-avatar-frame{
+ animation:gia-live-speaking .72s ease-in-out infinite alternate!important;
+}
+.gia-home.gia-thinking .gia-avatar-frame{
+ animation:gia-live-thinking 1.35s ease-in-out infinite!important;
+}
+.gia-home.gia-listening .gia-avatar-frame{
+ animation:gia-live-listening 1.8s ease-in-out infinite!important;
+}
+.gia-home.gia-speaking .gia-equalizer{opacity:1;transform:translateY(0)}
+.gia-home.gia-speaking .gia-equalizer i{animation:gia-wave .48s ease-in-out infinite alternate}
+.gia-home.gia-speaking .gia-equalizer i:nth-child(2){animation-delay:.1s}
+.gia-home.gia-speaking .gia-equalizer i:nth-child(3){animation-delay:.2s}
+.gia-home.gia-speaking .gia-equalizer i:nth-child(4){animation-delay:.15s}
+.gia-home.gia-speaking .gia-equalizer i:nth-child(5){animation-delay:.05s}
+@keyframes gia-live-speaking{
+ from{transform:scale(1);filter:brightness(1)}
+ to{transform:scale(1.025);filter:brightness(1.13)}
+}
+@keyframes gia-live-thinking{
+ 0%,100%{transform:scale(1);filter:saturate(1)}
+ 50%{transform:scale(1.018);filter:saturate(1.2) brightness(1.08)}
+}
+@keyframes gia-live-listening{
+ 0%,100%{box-shadow:0 0 0 7px #75e5ff12,0 0 34px #75e5ff55,0 18px 40px #05081688}
+ 50%{box-shadow:0 0 0 14px #75e5ff20,0 0 48px #75e5ff88,0 18px 40px #05081688}
+}
+@media(max-width:700px){
+ header{position:sticky}
+ main{padding-top:8px!important}
+ .gia-home{
+  min-height:calc(100svh - 150px)!important;
+  justify-content:center!important;
+  padding:22px 15px!important;
+ }
+ .gia-home .gia-avatar-frame{width:min(59vw,235px)!important}
+ .gia-home-copy h2{font-size:clamp(25px,7vw,32px)!important}
+ .gia-home-actions{max-width:390px}
+}
+@media(prefers-reduced-motion:reduce){
+ .gia-home.gia-speaking .gia-avatar-frame,.gia-home.gia-thinking .gia-avatar-frame,
+ .gia-home.gia-listening .gia-avatar-frame,.gia-home.gia-speaking .gia-equalizer i{animation:none!important}
+}
+
 </style>
 </head>
 <body>
