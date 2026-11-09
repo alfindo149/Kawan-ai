@@ -24,6 +24,7 @@ public class MainActivity extends Activity {
     private static final int AUDIO_PERMISSION_REQUEST = 41;
     private static final String APP_URL = "https://alfindo149.github.io/Kawan-ai/?appVersion=1.0.2";
     private WebView webView;
+    private GiaLocalAiBridge localAiBridge;
     private PermissionRequest pendingRequest;
     private LinearLayout errorPanel;
 
@@ -112,6 +113,8 @@ public class MainActivity extends Activity {
             }
         });
 
+        localAiBridge = new GiaLocalAiBridge(this, webView);
+        webView.addJavascriptInterface(localAiBridge, "GiaLocalAI");
         webView.loadUrl(APP_URL);
     }
 
@@ -174,6 +177,10 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (localAiBridge != null) {
+            localAiBridge.close();
+            localAiBridge = null;
+        }
         if (webView != null) {
             webView.stopLoading();
             webView.destroy();
