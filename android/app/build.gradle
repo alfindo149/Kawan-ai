@@ -8,7 +8,22 @@ android {
         applicationId 'id.gia.assistant'
         minSdk 23
         targetSdk 35
-        versionCode 3
-        versionName '1.0.2'
+        versionCode 4
+        versionName '1.0.3-local-preview'
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+        externalNativeBuild {
+            cmake {
+                cppFlags '-std=c++17 -O3'
+                arguments '-DANDROID_STL=c++_shared'
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path 'src/main/cpp/CMakeLists.txt'
+            version '3.22.1'
+        }
     }
 }
