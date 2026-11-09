@@ -1129,40 +1129,49 @@ function setGiaAvatarState(state){
  }
 }
 function speakReply(text){
- if(!voiceEnabled || !("speechSynthesis" in window)){
+ const status=document.getElementById("voiceStatus");
+ if(!voiceEnabled){
   voiceProcessing=false;
-  document.getElementById("voiceStatus").textContent = !voiceEnabled
-   ? "Suara jawaban mati. Mikrofon akan kembali mendengarkan."
-   : "Browser tidak mendukung suara jawaban. Mikrofon akan kembali mendengarkan.";
-  if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,700);
+  status.textContent="Jawaban GIA sudah tersedia dalam teks. Aktifkan tombol Suara untuk mendengarkannya.";
+  if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,900);
   return;
  }
- window.speechSynthesis.cancel();
- const utterance = new SpeechSynthesisUtterance(text);
- utterance.lang = "id-ID";
- utterance.rate = 0.94;
- utterance.pitch = 1.18;
- const giaVoice = getGiaVoice();
- if(giaVoice) utterance.voice = giaVoice;
- utterance.onstart = () => {
+ if(!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance==="undefined"){
+  voiceProcessing=false;
+  status.textContent="Jawaban teks sudah diterima, tetapi browser ini tidak mendukung pembacaan suara. Coba buka GIA melalui Chrome.";
+  if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,1200);
+  return;
+ }
+ const synth=window.speechSynthesis;
+ try{ synth.cancel(); synth.resume(); }catch(error){}
+ const utterance=new SpeechSynthesisUtterance(String(text||""));
+ utterance.lang="id-ID";
+ utterance.rate=0.94;
+ utterance.pitch=1.12;
+ const giaVoice=getGiaVoice();
+ if(giaVoice) utterance.voice=giaVoice;
+ let completed=false;
+ const finish=(message)=>{
+  if(completed) return;
+  completed=true;
+  setGiaAvatarState("idle");
+  voiceProcessing=false;
+  if(message) status.textContent=message;
+  if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,800);
+ };
+ utterance.onstart=()=>{
   setGiaAvatarState("speaking");
-  const voiceLabel = giaVoice ? giaVoice.name : "suara bawaan perangkat";
-  document.getElementById("voiceStatus").textContent = "GIA sedang berbicara · " + voiceLabel;
+  status.textContent="GIA sedang membacakan jawaban.";
  };
- utterance.onend = () => {
-  setGiaAvatarState("idle");
-  voiceProcessing=false;
-  if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,500);
+ utterance.onend=()=>finish("GIA selesai menjawab. Silakan bicara lagi.");
+ utterance.onerror=(event)=>{
+  finish("Jawaban teks sudah tersedia, tetapi suara gagal diputar"+(event && event.error ? " ("+event.error+")" : "")+". Periksa volume media HP atau coba tekan tombol Suara.");
  };
- utterance.onerror = () => {
-  setGiaAvatarState("idle");
-  voiceProcessing=false;
-  if(autoConversation || wakeWordMode){
-   document.getElementById("voiceStatus").textContent="Suara gagal diputar. Mencoba mengaktifkan mikrofon kembali.";
-   setTimeout(startListeningAgain,700);
-  }
- };
- window.speechSynthesis.speak(utterance);
+ // Jeda singkat setelah cancel membantu beberapa browser Android memulai antrean TTS baru.
+ setTimeout(()=>{
+  try{ synth.resume(); synth.speak(utterance); }
+  catch(error){ finish("Jawaban teks tersedia, tetapi pemutar suara gagal dijalankan. "+(error.message||"")); }
+ },120);
 }
 function toggleAutoConversation(){
  autoConversation = !autoConversation;
@@ -1478,7 +1487,7 @@ async function ask(){
  const q=document.getElementById("question").value.trim();
  const r=document.getElementById("reply");
  const button=document.getElementById("send");
- if(!q){r.textContent="Silakan tulis pertanyaan dahulu.";return;}
+ if(!q){r.textContent="Silakan tulis pertanyaan dahulu.";voiceProcessing=false;if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,800);return;}
  const creativeIntent=detectGiaCreativeIntent(q);
  if(creativeIntent){
   button.disabled=true;
@@ -1541,10 +1550,13 @@ async function ask(){
  }catch(error){
   console.error(error);
   updateHistoryStatus("Pengiriman riwayat gagal atau belum terkonfirmasi. Riwayat lokal: "+chatHistory.length+" pesan.");
-  r.textContent="Maaf, GIA. "+(error.message || "Koneksi ke AI gagal.")+" Periksa internet lalu coba lagi.";
+  const errorText="Maaf, GIA belum berhasil menjawab. "+(error.message || "Koneksi ke AI gagal.")+" Periksa internet lalu coba lagi.";
+  r.textContent=errorText;
+  document.getElementById("voiceStatus").textContent=errorText;
   setGiaAvatarState("idle");
   voiceProcessing=false;
-  if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,700);
+  // Beri waktu agar pesan kesalahan terbaca sebelum mikrofon aktif kembali.
+  if(autoConversation || wakeWordMode) setTimeout(startListeningAgain,2200);
  }finally{
   button.disabled=false;
   button.textContent="Kirim pesan";
