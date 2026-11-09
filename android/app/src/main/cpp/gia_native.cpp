@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <android/log.h>
+#include <cstring>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@ static bool g_backend_ready = false;
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_id_gia_assistant_LocalInference_nativeLoadModel(JNIEnv * env, jclass, jstring modelPath) {
+    if (!modelPath) return env->NewStringUTF("Lokasi model kosong.");
     const char * path = env->GetStringUTFChars(modelPath, nullptr);
     if (!path) return env->NewStringUTF("Gagal membaca lokasi model.");
     std::lock_guard<std::mutex> lock(g_mutex);
@@ -42,6 +44,7 @@ Java_id_gia_assistant_LocalInference_nativeLoadModel(JNIEnv * env, jclass, jstri
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_id_gia_assistant_LocalInference_nativeGenerate(JNIEnv * env, jclass, jstring promptText, jint maxTokens) {
+    if (!promptText) return env->NewStringUTF("Pertanyaan kosong.");
     const char * prompt = env->GetStringUTFChars(promptText, nullptr);
     if (!prompt) return env->NewStringUTF("Pertanyaan tidak terbaca.");
     std::lock_guard<std::mutex> lock(g_mutex);
